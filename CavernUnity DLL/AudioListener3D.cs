@@ -34,6 +34,9 @@ namespace Cavern {
         /// </summary>
         VirtualizerFilter virtualizer;
 
+        /// <summary>
+        /// Initialize the listener.
+        /// </summary>
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Used by Unity lifecycle")]
         protected virtual void Awake() {
             if (Current) {
