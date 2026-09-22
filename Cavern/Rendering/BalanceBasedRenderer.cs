@@ -117,11 +117,8 @@ namespace Cavern.Rendering {
             Channel[] channels = Listener.Channels;
             for (int channel = 0; channel < channels.Length; channel++) {
                 if (!channels[channel].LFE) {
-                    // World-space scaling and its inverse can move an exact speaker placement
-                    // by a float ULP. Taking the square root of that residual power makes a
-                    // leak into a neighbouring speaker. Preserve the exact placement.
+                    // World-space scaling and its inverse can move an exact speaker placement by a float ULP, so snap if panned very near of a channel
                     if (source.Size == 0 && Vector3.DistanceSquared(direction, channels[channel].CubicalPos) <= 1e-12f) {
-                        // Match the normal panning path, where gain scales power before the square root.
                         WaveformUtils.Mix(samples, rendered, channel, channels.Length, MathF.Sqrt(gain));
                         return;
                     }

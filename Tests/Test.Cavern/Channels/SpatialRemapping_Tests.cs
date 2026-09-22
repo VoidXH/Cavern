@@ -23,9 +23,7 @@ public class SpatialRemapping_Tests {
         Assert.AreEqual(1, matrix[1][1]); // FR
         Assert.AreEqual(1, matrix[2][2]); // C
         Assert.AreEqual(1, matrix[3][3]); // LFE
-        // The side source is at z=0. The 110-degree speaker meets the side wall at
-        // z=-tan(20 degrees); the front layer is at z=1. Balance panning shares
-        // power in proportion to these distances, preserving the total power.
+
         double rearDistance = Math.Tan(20 * Math.PI / 180);
         float frontGain = (float)Math.Sqrt(rearDistance / (1 + rearDistance));
         float sideGain = (float)Math.Sqrt(1 / (1 + rearDistance));
