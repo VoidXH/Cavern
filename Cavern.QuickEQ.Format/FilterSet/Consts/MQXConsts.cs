@@ -53,6 +53,10 @@ namespace Cavern.Format.FilterSet.Consts {
             (ReferenceChannel.TopRearLeft, "RHL", "Rear Height Left", "RH_", "Rear Height", "Left, Rear, Height"),
             (ReferenceChannel.TopRearRight, "RHR", "Rear Height Right", "RH_", "Rear Height", "Right, Rear, Height"),
             (ReferenceChannel.GodsVoice, "TS", "Top Surround", "TS", "Top Surround", "Surround, Top"),
+            (ReferenceChannel.TopFrontLeft, "FDL", "Front Dolby Left", "FD_", "Front Dolby", "FL, Dolby"),
+            (ReferenceChannel.TopFrontRight, "FDR", "Front Dolby Right", "FD_", "Front Dolby", "FR, Dolby"),
+            (ReferenceChannel.TopRearLeft, "BDL", "Back Dolby Left", "BD_", "Back Dolby", "Left, Back, Dolby"),
+            (ReferenceChannel.TopRearRight, "BDR", "Back Dolby Right", "BD_", "Back Dolby", "Right, Back, Dolby"),
         };
     }
 }
