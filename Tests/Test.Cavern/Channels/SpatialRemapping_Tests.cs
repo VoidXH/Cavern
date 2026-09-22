@@ -23,10 +23,16 @@ public class SpatialRemapping_Tests {
         Assert.AreEqual(1, matrix[1][1]); // FR
         Assert.AreEqual(1, matrix[2][2]); // C
         Assert.AreEqual(1, matrix[3][3]); // LFE
-        Assert.AreEqual(.570968032f, matrix[0][4]); // SL front mix
-        Assert.AreEqual(.570968032f, matrix[1][5]); // SR front mix
-        Assert.AreEqual(.820972264f, matrix[4][4]); // SL side mix
-        Assert.AreEqual(.820972264f, matrix[5][5]); // SR side mix
+        // The side source is at z=0. The 110-degree speaker meets the side wall at
+        // z=-tan(20 degrees); the front layer is at z=1. Balance panning shares
+        // power in proportion to these distances, preserving the total power.
+        double rearDistance = Math.Tan(20 * Math.PI / 180);
+        float frontGain = (float)Math.Sqrt(rearDistance / (1 + rearDistance));
+        float sideGain = (float)Math.Sqrt(1 / (1 + rearDistance));
+        Assert.AreEqual(frontGain, matrix[0][4], Constants.delta); // SL front mix
+        Assert.AreEqual(frontGain, matrix[1][5], Constants.delta); // SR front mix
+        Assert.AreEqual(sideGain, matrix[4][4], Constants.delta); // SL side mix
+        Assert.AreEqual(sideGain, matrix[5][5], Constants.delta); // SR side mix
         TestUtils.AssertNumberOfZeros(matrix, 28);
     }
 
