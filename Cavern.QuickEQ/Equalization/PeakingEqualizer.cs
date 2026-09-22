@@ -82,9 +82,14 @@ namespace Cavern.QuickEQ.Equalization {
         double logMinFreq;
 
         /// <summary>
-        /// Filter frequency response generator.
+        /// Sample rate used for filter generation.
         /// </summary>
-        FilterAnalyzer analyzer;
+        int sampleRate;
+
+        /// <summary>
+        /// Current filter candidate being measured.
+        /// </summary>
+        PeakingEQ currentFilter;
 
         /// <summary>
         /// Generates peaking EQ filter sets that try to match <see cref="Equalizer"/> curves.
@@ -151,16 +156,14 @@ namespace Cavern.QuickEQ.Equalization {
                 }
                 return Cleanup(result[..placed]);
             } else {
-                analyzer = new FilterAnalyzer(null, sampleRate);
+                this.sampleRate = sampleRate;
                 for (int band = 0; band < bands; band++) {
                     PeakingEQ foundBand = BruteForceBand(ref target, startPos, stopPos);
                     if (foundBand == null || foundBand.Q <= 0 || foundBand.GetPoleRadius() > maxPoleRadius) {
-                        analyzer.Dispose();
                         return result[..band];
                     }
                     result[band] = foundBand;
                 }
-                analyzer.Dispose();
             }
             return Cleanup(result);
         }
@@ -171,11 +174,10 @@ namespace Cavern.QuickEQ.Equalization {
         public PeakingEQ[] GetPeakingEQ(int sampleRate) {
             float[] target = source.Visualize(MinFrequency, MaxFrequency, 1024);
             PeakingEQ[] result = new PeakingEQ[source.Bands.Count];
-            analyzer = new FilterAnalyzer(null, sampleRate);
+            this.sampleRate = sampleRate;
             for (int band = 0, bandc = source.Bands.Count; band < bandc; band++) {
                 result[band] = BruteForceQ(ref target, source.Bands[band].Frequency, source.Bands[band].Gain);
             }
-            analyzer.Dispose();
             return Cleanup(result);
         }
 
@@ -198,7 +200,7 @@ namespace Cavern.QuickEQ.Equalization {
             PeakingEQ[] result = new PeakingEQ[bands];
             double bandwidth = 1.0 / bandsPerOctave;
             double q = QFactor.FromBandwidth(bandwidth);
-            analyzer = new FilterAnalyzer(null, sampleRate);
+            this.sampleRate = sampleRate;
             for (int i = 0; i < bands; i++) {
                 double freq = firstBand * Math.Pow(2, i * bandwidth);
                 if (roundFrequencies) {
@@ -213,7 +215,6 @@ namespace Cavern.QuickEQ.Equalization {
 
                 result[i] = BruteForceGain(ref target, freq, q);
             }
-            analyzer.Dispose();
             return Cleanup(result);
         }
 
@@ -221,8 +222,8 @@ namespace Cavern.QuickEQ.Equalization {
         /// Measure a filter candidate for <see cref="BruteForceQ(ref float[], double, double, bool)"/>.
         /// </summary>
         float BruteForceStep(float[] target, out float[] changedTarget) {
-            changedTarget = GraphUtils.ConvertToGraph(analyzer.FrequencyResponse, MinFrequency, MaxFrequency,
-                analyzer.SampleRate, target.Length);
+            changedTarget = GraphUtils.ConvertToGraph(currentFilter.GetTransferFunction(responseBins), MinFrequency, MaxFrequency,
+                sampleRate, target.Length);
             GraphUtils.ConvertToDecibels(changedTarget);
             WaveformUtils.Mix(target, changedTarget);
             return changedTarget.SumAbs();
@@ -255,14 +256,14 @@ namespace Cavern.QuickEQ.Equalization {
             for (int i = 0; i < Iterations; i++) {
                 gainStep *= .5;
                 double lowerGain = gain - gainStep, upperGain = gain + gainStep;
-                analyzer.Reset(new PeakingEQ(analyzer.SampleRate, freq, q, lowerGain));
+                currentFilter = new PeakingEQ(sampleRate, freq, q, lowerGain);
                 float lowerSum = BruteForceStep(targetSource, out float[] lowerTarget);
                 if (targetSum > lowerSum) {
                     targetSum = lowerSum;
                     target = lowerTarget;
                     gain = lowerGain;
                 }
-                analyzer.Reset(new PeakingEQ(analyzer.SampleRate, freq, q, upperGain));
+                currentFilter = new PeakingEQ(sampleRate, freq, q, upperGain);
                 float upperSum = BruteForceStep(targetSource, out float[] upperTarget);
                 if (targetSum > upperSum) {
                     targetSum = upperSum;
@@ -271,7 +272,7 @@ namespace Cavern.QuickEQ.Equalization {
                 }
             }
 
-            PeakingEQ filter = new PeakingEQ(analyzer.SampleRate, freq, q, SnapGain(gain));
+            PeakingEQ filter = new PeakingEQ(sampleRate, freq, q, SnapGain(gain));
             PostprocessFilter?.Invoke(filter);
             return filter;
         }
@@ -290,7 +291,7 @@ namespace Cavern.QuickEQ.Equalization {
             bool valid = alwaysValid; // If false, we're better off without this filter
             for (int i = 0; i < Iterations; i++) {
                 double lowerQ = q - qStep, upperQ = q + qStep;
-                analyzer.Reset(new PeakingEQ(analyzer.SampleRate, freq, lowerQ, gain));
+                currentFilter = new PeakingEQ(sampleRate, freq, lowerQ, gain);
                 float lowerSum = BruteForceStep(targetSource, out float[] lowerTarget);
                 if (targetSum > lowerSum) {
                     targetSum = lowerSum;
@@ -298,7 +299,7 @@ namespace Cavern.QuickEQ.Equalization {
                     q = lowerQ;
                     valid = true;
                 }
-                analyzer.Reset(new PeakingEQ(analyzer.SampleRate, freq, upperQ, gain));
+                currentFilter = new PeakingEQ(sampleRate, freq, upperQ, gain);
                 float upperSum = BruteForceStep(targetSource, out float[] upperTarget);
                 if (targetSum > upperSum) {
                     targetSum = upperSum;
@@ -312,7 +313,7 @@ namespace Cavern.QuickEQ.Equalization {
             if (!valid) {
                 return null;
             }
-            PeakingEQ filter = new PeakingEQ(analyzer.SampleRate, freq, q, -gain);
+            PeakingEQ filter = new PeakingEQ(sampleRate, freq, q, -gain);
             PostprocessFilter?.Invoke(filter);
             return filter;
         }
@@ -342,6 +343,12 @@ namespace Cavern.QuickEQ.Equalization {
         /// (<see cref="MinGain"/>, <see cref="MaxGain"/>, and <see cref="GainPrecision"/>).
         /// </summary>
         double SnapGain(double gain) => Math.Round(-Math.Clamp(gain, MinGain, MaxGain) / GainPrecision) * GainPrecision;
+
+        /// <summary>
+        /// Number of frequency bins used to evaluate the transfer function of a filter candidate.
+        /// Matches the frequency resolution of the previous FFT-based measurement.
+        /// </summary>
+        const int responseBins = 65536;
 
         /// <summary>
         /// Maximum allowed pole radius for a generated band. Values too close to 1 make the biquad (near-)unstable, the energy accumulates and overflows.

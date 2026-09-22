@@ -104,6 +104,11 @@ namespace Cavern.Filters {
         protected float x1, x2, y1, y2;
 
         /// <summary>
+        /// Native CavernAmp instance for accelerated processing.
+        /// </summary>
+        protected IntPtr nativeInstance = IntPtr.Zero;
+
+        /// <summary>
         /// Simple first-order biquad filter with maximum flatness and no additional gain.
         /// </summary>
         /// <param name="sampleRate">Audio sample rate</param>

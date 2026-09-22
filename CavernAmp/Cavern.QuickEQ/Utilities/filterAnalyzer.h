@@ -3,12 +3,12 @@
 
 #include "../../Cavern/Utilities/complex.h"
 #include "../../Cavern/Utilities/fftcache.h"
-#include "../../Cavern/Filters/peakingFilter.h"
+#include "../../Cavern/Filters/peakingEQ.h"
 
 /// Class
 // Measures properties of a filter, like frequency/impulse response, gain, or delay.
 class FilterAnalyzer {
-    PeakingFilter *filter;
+    PeakingEQ *filter;
     int sampleRate;
 
     int resolution;
@@ -24,8 +24,8 @@ class FilterAnalyzer {
     float *spectrum;
 
 public:
-    FilterAnalyzer(PeakingFilter *filter, const int sampleRate);
-    void Reset(PeakingFilter *filter, const int sampleRate);
+    FilterAnalyzer(PeakingEQ *filter, const int sampleRate);
+    void Reset(PeakingEQ *filter, const int sampleRate);
     void ClearFilter();
     int GetSampleRate() { return sampleRate; }
     float* GetSpectrum();

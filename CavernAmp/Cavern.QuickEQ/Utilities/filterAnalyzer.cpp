@@ -5,12 +5,12 @@
 #include "filterAnalyzer.h"
 #include "../../Cavern/Utilities/measurements.h"
 
-FilterAnalyzer::FilterAnalyzer(PeakingFilter *filter, const int sampleRate) : filter(filter), sampleRate(sampleRate),
+FilterAnalyzer::FilterAnalyzer(PeakingEQ *filter, const int sampleRate) : filter(filter), sampleRate(sampleRate),
     startQ(10), gainPrecision(.01), minGain(-100), maxGain(20), iterations(8), maxFrequency(0), impulseReference(nullptr) {
     SetResolution(65536);
 }
 
-void FilterAnalyzer::Reset(PeakingFilter *filter, const int sampleRate) {
+void FilterAnalyzer::Reset(PeakingEQ *filter, const int sampleRate) {
     if (this->filter) {
         delete this->filter;
     }
@@ -64,7 +64,7 @@ void DLL_EXPORT FilterAnalyzer_SetMaxFrequency(FilterAnalyzer *analyzer, const d
 }
 
 void DLL_EXPORT FilterAnalyzer_AddPEQ(FilterAnalyzer *analyzer, double centerFreq, double q, double gain) {
-    PeakingFilter *newFilter = new PeakingFilter(analyzer->GetSampleRate(), centerFreq, q, gain);
+    PeakingEQ *newFilter = new PeakingEQ(analyzer->GetSampleRate(), centerFreq, q, gain);
     analyzer->Reset(newFilter, analyzer->GetSampleRate());
 }
 

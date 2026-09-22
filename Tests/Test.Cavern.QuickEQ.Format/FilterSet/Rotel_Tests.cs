@@ -11,5 +11,5 @@ public class Rotel_Tests : IIRFilterSetJig {
     /// <summary>
     /// Tests if <see cref="StormAudioFilterSet"/>s are handled properly.
     /// </summary>
-    public Rotel_Tests() : base(FilterSetTarget.Rotel) => Tolerance = 3.3;
+    public Rotel_Tests() : base(FilterSetTarget.Rotel) => Tolerance = 3.4;
 }

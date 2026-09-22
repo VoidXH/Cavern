@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Runtime.InteropServices;
 
 namespace Cavern.Utilities {
@@ -51,6 +51,26 @@ namespace Cavern.Utilities {
         /// </summary>
         [DllImport("CavernAmp.dll")]
         static extern unsafe void Filter_ProcessChannel(IntPtr instance, float* samples, int len, int channel, int channels);
+
+        #region Biquad Simulation
+        /// <summary>
+        /// Get the transfer function of a biquad filter instance.
+        /// </summary>
+        /// <param name="instance">Native BiquadFilter instance</param>
+        /// <param name="bins">Number of frequency bins (linear spacing from 0 to Nyquist)</param>
+        /// <param name="output">Pre-allocated array of Complex, size = bins</param>
+        [DllImport("CavernAmp.dll", EntryPoint = "BiquadFilter_GetTransferFunction")]
+        public static extern unsafe void BiquadFilter_GetTransferFunction(IntPtr instance, int bins, Complex* output);
+
+        /// <summary>
+        /// Get the frequency response (magnitude) of a biquad filter instance.
+        /// </summary>
+        /// <param name="instance">Native BiquadFilter instance</param>
+        /// <param name="bins">Number of frequency bins (linear spacing from 0 to Nyquist)</param>
+        /// <param name="output">Pre-allocated array of float, size = bins</param>
+        [DllImport("CavernAmp.dll", EntryPoint = "BiquadFilter_GetFrequencyResponse")]
+        public static extern unsafe void BiquadFilter_GetFrequencyResponse(IntPtr instance, int bins, float* output);
+        #endregion
 
         #region FastConvolver
         /// <summary>
