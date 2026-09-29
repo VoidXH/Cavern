@@ -15,5 +15,9 @@
         /// Measure in distance: centimeters.
         /// </summary>
         Centimeters,
+        /// <summary>
+        /// Measure in distance: meters.
+        /// </summary>
+        Meters,
     }
 }

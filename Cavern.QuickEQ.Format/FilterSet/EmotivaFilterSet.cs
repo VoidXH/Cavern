@@ -5,6 +5,7 @@ using System.IO;
 
 using Cavern.Channels;
 using Cavern.Filters;
+using Cavern.Format.FilterSet.Enums;
 
 namespace Cavern.Format.FilterSet {
     /// <summary>
@@ -30,6 +31,11 @@ namespace Cavern.Format.FilterSet {
         /// Round the gains to this precision.
         /// </summary>
         public override double GainPrecision => .5;
+
+        /// <summary>
+        /// Export delays in meters rounded to 0.1 m.
+        /// </summary>
+        public override DelayUnit DelayUnits => DelayUnit.Meters;
 
         /// <summary>
         /// IIR filter set for Emotiva processors with a given number of channels.
