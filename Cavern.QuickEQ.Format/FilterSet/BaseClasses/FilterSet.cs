@@ -155,7 +155,7 @@ namespace Cavern.Format.FilterSet {
                     case DelayUnit.Meters:
                         float secondsM = Channels[channel].delaySamples / (float)SampleRate;
                         float meters = secondsM * Source.SpeedOfSound;
-                        result.AppendLine($"Delay: {meters:0.0} m");
+                        result.AppendLine($"Delay: {meters:0.00} m");
                         break;
                     default:
                         throw new NotImplementedException();
