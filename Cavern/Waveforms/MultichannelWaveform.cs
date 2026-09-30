@@ -19,12 +19,26 @@ namespace Cavern.Waveforms {
         public MultichannelWaveform(int channels, int samplesPerChannel) : base(channels, samplesPerChannel) { }
 
         /// <summary>
-        /// Construct a multichannel waveform from an interlaced signal.
+        /// Construct a multichannel waveform from an interlaced multichannel signal.
         /// </summary>
         public MultichannelWaveform(float[] source, int channels) : this(channels, source.Length / channels) {
             for (int channel = 0; channel < channels; channel++) {
                 WaveformUtils.ExtractChannel(source, this[channel], channel, channels);
             }
+        }
+
+        /// <summary>
+        /// Construct a multichannel waveform from a planar multichannel signal.
+        /// </summary>
+        public static MultichannelWaveform FromPlanar(float[] source, int channels) {
+            float[][] samples = new float[channels][];
+            long samplesPerChannel = source.LongLength / channels;
+            for (int i = 0; i < samples.Length; i++) {
+                float[] channel = new float[samplesPerChannel];
+                Array.Copy(source, i * samplesPerChannel, channel, 0, samplesPerChannel);
+                samples[i] = channel;
+            }
+            return new MultichannelWaveform(samples);
         }
 
         /// <inheritdoc/>
