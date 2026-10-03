@@ -167,7 +167,7 @@ namespace Cavern.QuickEQ.Equalization {
             };
             c--;
             for (int i = 1; i < c; i++) {
-                if (bands[i].Gain != bands[i - 1].Gain && bands[i].Gain != bands[i + 1].Gain) {
+                if (bands[i].Gain != bands[i - 1].Gain || bands[i].Gain != bands[i + 1].Gain) {
                     newBands.Add(bands[i]);
                 }
             }
