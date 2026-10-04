@@ -3,8 +3,6 @@
 
 #include "../Utilities/filterAnalyzer.h"
 
-#define LOG10_20 1.3010299956639811952137388947245
-
 struct CavernAmpPeakingEQ {
     double centerFreq;
     double q;

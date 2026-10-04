@@ -16,7 +16,7 @@ public class PeakingEqualizer_Tests {
     /// <summary>
     /// Tests if <see cref="PeakingEqualizer.GetPeakingEQ(int)"/> works as intended.
     /// </summary>
-    [TestMethod, Timeout(10000)]
+    [TestMethod, Timeout(1000)]
     public void GetPeakingEQ() => CavernAmpTest.Run(() => {
         PeakingEQ[] result = new PeakingEqualizer(Constants.peakAt500Hz).GetPeakingEQ(Constants.sampleRate, 1);
         Assert.AreEqual(1, result.Length);
@@ -43,7 +43,7 @@ public class PeakingEqualizer_Tests {
     /// <summary>
     /// Tests if <see cref="PeakingEqualizer.MaxFrequency"/> is respected across all engines.
     /// </summary>
-    [TestMethod, Timeout(10000)]
+    [TestMethod, Timeout(1000)]
     public void MaxFrequency() => CavernAmpTest.Run(() => {
         const double maxFreq = 400;
         PeakingEQ[] result = new PeakingEqualizer(Constants.peakAt500Hz) {
@@ -52,6 +52,35 @@ public class PeakingEqualizer_Tests {
 
         if (result.Length == 1) {
             Assert.IsTrue(result[0].CenterFreq < maxFreq);
+        } else {
+            Assert.AreEqual(0, result.Length);
+        }
+    });
+
+    /// <summary>
+    /// Tests if <see cref="PeakingEqualizer.MinFrequency"/> is respected across all engines.
+    /// </summary>
+    [TestMethod, Timeout(1000)]
+    public void MinFrequency() => CavernAmpTest.Run(() => {
+        const double minFreq = 300;
+        PeakingEQ[] result = new PeakingEqualizer(Constants.peakAt500Hz) {
+            MinFrequency = minFreq
+        }.GetPeakingEQ(Constants.sampleRate, 1);
+        Assert.AreEqual(1, result.Length);
+        Assert.AreEqual(500, result[0].CenterFreq, 5);
+    });
+
+    /// <summary>
+    /// Tests if <see cref="PeakingEqualizer.MinFrequency"/> is respected when the peak is below the minimum frequency.
+    /// </summary>
+    [TestMethod, Timeout(1000)]
+    public void MinFrequency_BelowPeak() => CavernAmpTest.Run(() => {
+        const double minFreq = 600;
+        PeakingEQ[] result = new PeakingEqualizer(Constants.peakAt500Hz) {
+            MinFrequency = minFreq
+        }.GetPeakingEQ(Constants.sampleRate, 1);
+        if (result.Length == 1) {
+            Assert.AreEqual(minFreq, result[0].CenterFreq, 1);
         } else {
             Assert.AreEqual(0, result.Length);
         }

@@ -32,6 +32,12 @@ namespace Cavern.QuickEQ.Utilities {
         internal static extern void FilterAnalyzer_SetMaxFrequency(IntPtr analyzer, double maxFrequency);
 
         /// <summary>
+        /// Set minimum frequency.
+        /// </summary>
+        [DllImport("CavernAmp.dll", EntryPoint = "FilterAnalyzer_SetMinFrequency")]
+        internal static extern void FilterAnalyzer_SetMinFrequency(IntPtr analyzer, double minFrequency);
+
+        /// <summary>
         /// Reset a filter with a PeakingEQ.
         /// </summary>
         [DllImport("CavernAmp.dll", EntryPoint = "FilterAnalyzer_AddPEQ")]

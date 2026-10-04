@@ -10,7 +10,7 @@
 
 float BruteForceStepInternal(float *target, int targetLength, float *&changedTarget, FilterAnalyzer *analyzer) {
     double maxFreq = analyzer->GetMaxFrequency() > 0 ? analyzer->GetMaxFrequency() : analyzer->GetSampleRate() * .5;
-    changedTarget = ConvertToGraph(analyzer->GetSpectrum(), analyzer->GetResolution() / 2, 20, maxFreq, analyzer->GetSampleRate(), targetLength);
+    changedTarget = ConvertToGraph(analyzer->GetSpectrum(), analyzer->GetResolution() / 2, analyzer->GetMinFrequency(), maxFreq, analyzer->GetSampleRate(), targetLength);
     ConvertToDecibels(changedTarget, targetLength);
     Mix(target, changedTarget, targetLength);
     return SumAbs(changedTarget, targetLength);
@@ -18,7 +18,7 @@ float BruteForceStepInternal(float *target, int targetLength, float *&changedTar
 
 float DLL_EXPORT BruteForceStep(float *target, int targetLength, float *changedTarget, FilterAnalyzer *analyzer) {
     double maxFreq = analyzer->GetMaxFrequency() > 0 ? analyzer->GetMaxFrequency() : analyzer->GetSampleRate() * .5;
-    ConvertToGraph(analyzer->GetSpectrum(), analyzer->GetResolution() / 2, 20, maxFreq, analyzer->GetSampleRate(), changedTarget, targetLength);
+    ConvertToGraph(analyzer->GetSpectrum(), analyzer->GetResolution() / 2, analyzer->GetMinFrequency(), maxFreq, analyzer->GetSampleRate(), changedTarget, targetLength);
     ConvertToDecibels(changedTarget, targetLength);
     Mix(target, changedTarget, targetLength);
     return SumAbs(changedTarget, targetLength);
@@ -68,7 +68,8 @@ CavernAmpPeakingEQ DLL_EXPORT BruteForceQ(float *target, int targetLength, Filte
 
 CavernAmpPeakingEQ DLL_EXPORT BruteForceBand(float *target, int targetLength, FilterAnalyzer *analyzer, int startPos, int stopPos) {
     double maxFreq = analyzer->GetMaxFrequency() > 0 ? analyzer->GetMaxFrequency() : analyzer->GetSampleRate() * .5;
-    double powRange = log10(maxFreq) - LOG10_20;
+    double minFreq = analyzer->GetMinFrequency();
+    double powRange = log10(maxFreq) - log10(minFreq);
     float max = fabsf(target[startPos]), abs;
     int maxAt = startPos;
     for (int i = startPos + 1; i < stopPos; i++) {
@@ -78,5 +79,5 @@ CavernAmpPeakingEQ DLL_EXPORT BruteForceBand(float *target, int targetLength, Fi
             maxAt = i;
         }
     }
-    return BruteForceQ(target, targetLength, analyzer, pow(10, LOG10_20 + powRange * maxAt / targetLength), target[maxAt]);
+    return BruteForceQ(target, targetLength, analyzer, pow(10, log10(minFreq) + powRange * maxAt / (targetLength - 1)), target[maxAt]);
 }

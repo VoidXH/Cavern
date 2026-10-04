@@ -111,19 +111,9 @@ namespace Cavern.QuickEQ.Equalization {
 
             logMinFreq = Math.Log10(MinFrequency);
             logMaxFreq = Math.Log10(MaxFrequency);
-            float[] target;
-            double bandRange;
-            int finalPos;
-            if (CavernAmp.Available) { // CavernAmp always works up to the Nyquist frequency
-                target = source.Visualize(MinFrequency, (float)MaxFrequency, 1024);
-                double logPos = Math.Log10(MaxFrequency);
-                bandRange = target.Length / (logPos - logMinFreq);
-                finalPos = Math.Min((int)((logPos - logMinFreq) * bandRange), target.Length);
-            } else {
-                target = source.Visualize(MinFrequency, MaxFrequency, 1024);
-                bandRange = target.Length / (logMaxFreq - logMinFreq);
-                finalPos = target.Length;
-            }
+            float[] target = source.Visualize(MinFrequency, MaxFrequency, 1024);
+            double bandRange = target.Length / (logMaxFreq - logMinFreq);
+            int finalPos = target.Length;
             int startPos = (int)((Math.Log10(source.Bands[0].Frequency) - logMinFreq) * bandRange),
                 stopPos = (int)((Math.Log10(source.Bands[source.Bands.Count - 1].Frequency) - logMinFreq) * bandRange);
 
@@ -140,6 +130,7 @@ namespace Cavern.QuickEQ.Equalization {
             if (CavernAmp.Available) {
                 IntPtr extAnalyzer =
                     CavernQuickEQAmp.FilterAnalyzer_Create(sampleRate, MaxGain, MinGain, GainPrecision, StartQ, Iterations);
+                CavernQuickEQAmp.FilterAnalyzer_SetMinFrequency(extAnalyzer, MinFrequency);
                 CavernQuickEQAmp.FilterAnalyzer_SetMaxFrequency(extAnalyzer, MaxFrequency);
                 int placed = 0;
                 for (int band = 0; band < bands; band++) {
@@ -335,7 +326,7 @@ namespace Cavern.QuickEQ.Equalization {
                     maxAt = i;
                 }
             }
-            return BruteForceQ(ref target, Math.Pow(10, logMinFreq + (logMaxFreq - logMinFreq) * maxAt / target.Length), target[maxAt]);
+            return BruteForceQ(ref target, Math.Pow(10, logMinFreq + (logMaxFreq - logMinFreq) * maxAt / (target.Length - 1)), target[maxAt]);
         }
 
         /// <summary>
