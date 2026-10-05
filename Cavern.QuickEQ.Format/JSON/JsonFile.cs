@@ -12,7 +12,7 @@ namespace Cavern.Format.JSON {
     /// JSON file parser/exporter, representing a single node on the tree.
     /// For example usage, check the code of <see cref="FilterSet.JLAudioTuNFilterSet"/>.
     /// </summary>
-    public sealed class JsonFile : IEnumerable<KeyValuePair<string, object>> {
+    public sealed partial class JsonFile : IEnumerable<KeyValuePair<string, object>> {
         /// <summary>
         /// The fields of the current tree node.
         /// </summary>
@@ -171,6 +171,8 @@ namespace Cavern.Format.JSON {
                         return doubleValue;
                     } else if (bool.TryParse(value, out bool boolValue)) {
                         return boolValue;
+                    } else if (value == "null") {
+                        return null;
                     }
                     return value; // Unsupported types are handled as strings
             }
@@ -180,7 +182,9 @@ namespace Cavern.Format.JSON {
         /// Write the value of an element to the JSON object under output.
         /// </summary>
         static void AppendValue(StringBuilder result, object value) {
-            if (value is bool b) {
+            if (value == null) {
+                result.Append("null");
+            } else if (value is bool b) {
                 result.Append(b.ToString().ToLowerInvariant());
             } else if (value is double dbl) {
                 result.Append(dbl.ToString(CultureInfo.InvariantCulture));

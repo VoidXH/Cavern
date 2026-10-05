@@ -9,7 +9,7 @@ namespace Test.Cavern.QuickEQ.Format.FilterSet;
 /// Tests the <see cref="EmotivaFilterSet"/> class.
 /// </summary>
 [TestClass]
-public class Emotiva_Tests {
+public class EmotivaFilterSet_Tests {
     /// <summary>
     /// Tests if the snapped Q factor never reaches 0, as a Q of 0 produces a degenerate biquad
     /// (division by zero in the coefficient calculation).

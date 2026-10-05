@@ -8,9 +8,9 @@ namespace Test.Cavern.QuickEQ.Format.FilterSet;
 /// Tests if <see cref="StormAudioFilterSet"/>s are handled properly.
 /// </summary>
 [TestClass]
-public class StormAudio_Tests : IIRFilterSetJig {
+public class StormAudioFilterSet_Tests : IIRFilterSetJig {
     /// <summary>
     /// Tests if <see cref="StormAudioFilterSet"/>s are handled properly.
     /// </summary>
-    public StormAudio_Tests() : base(FilterSetTarget.StormAudio) { }
+    public StormAudioFilterSet_Tests() : base(FilterSetTarget.StormAudio) { }
 }

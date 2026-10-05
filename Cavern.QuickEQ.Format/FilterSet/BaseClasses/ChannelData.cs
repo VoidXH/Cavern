@@ -22,6 +22,11 @@ namespace Cavern.Format.FilterSet {
         /// </summary>
         public int delaySamples;
 
+        /// <summary>
+        /// Crossover frequency of this channel or null if it's full range.
+        /// </summary>
+        public float? crossoverFrequency;
+
         /// <inheritdoc/>
         public virtual object Clone() => MemberwiseClone();
     }

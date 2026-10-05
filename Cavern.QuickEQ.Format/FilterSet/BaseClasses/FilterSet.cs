@@ -39,6 +39,11 @@ namespace Cavern.Format.FilterSet {
         public virtual DelayUnit DelayUnits => DelayUnit.Milliseconds;
 
         /// <summary>
+        /// Whether this filter set supports crossover configuration.
+        /// </summary>
+        public virtual bool SupportsCrossover => false;
+
+        /// <summary>
         /// A filter set containing equalization info for each channel of a system on a given sample rate.
         /// </summary>
         protected FilterSet(int sampleRate) => SampleRate = sampleRate;

@@ -1,13 +1,13 @@
-﻿using System;
-using System.Globalization;
+using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 
 using Cavern.Channels;
 using Cavern.Filters;
 using Cavern.Format.Exceptions;
 using Cavern.Format.FilterSet.Consts;
+using Cavern.Format.JSON;
 
 namespace Cavern.Format.FilterSet {
     /// <summary>
@@ -20,6 +20,11 @@ namespace Cavern.Format.FilterSet {
         public override string FileExtension => "mqx";
 
         /// <summary>
+        /// Whether this filter set supports crossover configuration.
+        /// </summary>
+        public override bool SupportsCrossover => true;
+
+        /// <summary>
         /// This instance is based on a valid configuration file and a modified version can be exported.
         /// </summary>
         public bool Valid { get; private set; } = true;
@@ -28,40 +33,6 @@ namespace Cavern.Format.FilterSet {
         /// In-file channel GUIDs.
         /// </summary>
         string[] guids;
-
-        /// <summary>
-        /// Load a MultEQ-X configuration file for editing.
-        /// </summary>
-        public static MultEQXFilterSet FromFile(string path) {
-            string fileContents = File.ReadAllText(path);
-            int pos = fileContents.IndexOf(channelList, StringComparison.Ordinal),
-                endPos = -1;
-            if (pos != -1) {
-                endPos = fileContents.IndexOf(']', pos += channelList.Length);
-            }
-            if (endPos == -1) {
-                throw new CorruptionException("channel list");
-            }
-
-            string[] sourceGuids = fileContents[pos..endPos].Split(',');
-            for (int guid = 0; guid < sourceGuids.Length; guid++) {
-                pos = sourceGuids[guid].IndexOf('"') + 1;
-                endPos = sourceGuids[guid].LastIndexOf('"');
-                if (pos == 0 || endPos == -1 || pos >= endPos) {
-                    throw new CorruptionException("guids");
-                }
-                sourceGuids[guid] = sourceGuids[guid][pos..endPos];
-            }
-
-            ReferenceChannel[] channels = new ReferenceChannel[sourceGuids.Length];
-            for (int i = 0; i < channels.Length; i++) {
-                channels[i] = MQXConsts.matrix[channels.Length][i];
-            }
-
-            return new MultEQXFilterSet(channels, Listener.DefaultSampleRate) {
-                guids = sourceGuids
-            };
-        }
 
         /// <summary>
         /// Create a MultEQ-X configuration file for EQ export.
@@ -83,6 +54,56 @@ namespace Cavern.Format.FilterSet {
             for (int i = 0; i < guids.Length; i++) {
                 guids[i] = Guid.NewGuid().ToString();
             }
+        }
+
+        /// <summary>
+        /// Load a MultEQ-X configuration file for editing.
+        /// </summary>
+        public static MultEQXFilterSet FromFile(string path) => FromFile(path, Listener.DefaultSampleRate);
+
+        /// <summary>
+        /// Load a MultEQ-X configuration file for editing with a target sample rate.
+        /// </summary>
+        public static MultEQXFilterSet FromFile(string path, int sampleRate) => FromString(File.ReadAllText(path), sampleRate);
+
+        /// <summary>
+        /// Load a MultEQ-X configuration from a string for editing.
+        /// </summary>
+        public static MultEQXFilterSet FromString(string jsonContent) => FromString(jsonContent, Listener.DefaultSampleRate);
+
+        /// <summary>
+        /// Load a MultEQ-X configuration from a string for editing with a target sample rate.
+        /// </summary>
+        public static MultEQXFilterSet FromString(string jsonContent, int sampleRate) => FromJson(new JsonFile(jsonContent), sampleRate);
+
+        /// <summary>
+        /// Load a MultEQ-X configuration from a parsed JSON file for editing.
+        /// </summary>
+        public static MultEQXFilterSet FromJson(JsonFile json) => FromJson(json, Listener.DefaultSampleRate);
+
+        /// <summary>
+        /// Load a MultEQ-X configuration from a parsed JSON file for editing with a target sample rate.
+        /// </summary>
+        public static MultEQXFilterSet FromJson(JsonFile json, int sampleRate) {
+            Dictionary<string, ReferenceChannel> channelMapping = MQXHelpers.GetChannelMapping(json);
+            if (channelMapping == null || !json.ContainsKey(channelListKey)) {
+                throw new CorruptionException("channel list");
+            }
+
+            object[] orderedGuids = (object[])json[channelListKey];
+            string[] sourceGuids = new string[orderedGuids.Length];
+            ReferenceChannel[] channels = new ReferenceChannel[orderedGuids.Length];
+            for (int i = 0; i < orderedGuids.Length; i++) {
+                string guid = (string)orderedGuids[i];
+                sourceGuids[i] = guid;
+                if (!channelMapping.TryGetValue(guid, out channels[i])) {
+                    channels[i] = ReferenceChannel.Unknown;
+                }
+            }
+
+            return new MultEQXFilterSet(channels, sampleRate) {
+                guids = sourceGuids
+            };
         }
 
         /// <summary>
@@ -111,15 +132,22 @@ namespace Cavern.Format.FilterSet {
         /// Export the modified version of the loaded configuration file containing all applied filters.
         /// </summary>
         public override void Export(string path) {
+            File.WriteAllText(path, Export(false));
+        }
+
+        /// <summary>
+        /// Generate the full MultEQ-X JSON configuration containing all applied filters.
+        /// </summary>
+        protected override string Export(bool gainOnly) {
             if (!Valid) {
                 throw new InvalidSourceException();
             }
 
             double[] gains = GetGains(-12, 12);
             double[] delays = GetDelays(20);
-            StringBuilder result = new StringBuilder();
-            result.AppendLine(fileStart);
-            for (int channel = 0; channel < guids.Length;) {
+
+            JsonFile channelDataMap = new JsonFile();
+            for (int channel = 0; channel < guids.Length; channel++) {
                 IIRChannelData channelRef = (IIRChannelData)Channels[channel];
                 (ReferenceChannel channel, string designation, string name, string pairDesignation, string pair, string location) label =
                     MQXConsts.labeling.FirstOrDefault(x => x.channel == channelRef.reference);
@@ -127,52 +155,79 @@ namespace Cavern.Format.FilterSet {
                     throw new IOException("A channel that's part of the exported configuration is unsupported by MultEQ-X.");
                 }
 
-                result.Append(string.Format(channelEntry, guids[channel], label.designation, label.name,
-                    label.pairDesignation, label.pair, label.location,
-                    gains[channel].ToString(CultureInfo.InvariantCulture),
-                    delays[channel].ToString(CultureInfo.InvariantCulture),
-                    channelRef.switchPolarity.ToString().ToLowerInvariant()));
-                if (++channel != guids.Length) {
-                    result.AppendLine(",");
-                } else {
-                    result.AppendLine();
-                }
+                channelDataMap[guids[channel]] = new JsonFile {
+                    {
+                        "Metadata", new JsonFile {
+                            { "AvrOriginatingDesignation", label.designation },
+                            { "DisplayName", label.name },
+                            { "PairDesignation", label.pairDesignation },
+                            { "PairDisplayName", label.pair },
+                            { "Location", label.location }
+                        }
+                    },
+                    {
+                        "Calibration", new JsonFile {
+                            { "IsEnabled", true },
+                            { "Trim", gains[channel] },
+                            { "DistanceMilliseconds", delays[channel] },
+                            { "PolarityError", channelRef.switchPolarity },
+                            { "SpeakerSize", "Small" },
+                            { "CrossoverFrequency", channelRef.crossoverFrequency ?? 80 }
+                        }
+                    },
+                    {
+                        "TargetCurveCutoff", new JsonFile {
+                            { "Mode", "Auto" }
+                        }
+                    }
+                };
             }
 
-            result.AppendLine(fileBeforeGuids);
-            for (int channel = 0; channel < guids.Length;) {
-                result.Append('"').Append(guids[channel]).Append('"');
-                if (++channel != guids.Length) {
-                    result.AppendLine(",");
-                } else {
-                    result.AppendLine();
-                }
+            object[] orderedGuids = new object[guids.Length];
+            for (int i = 0; i < guids.Length; i++) {
+                orderedGuids[i] = guids[i];
             }
 
-            result.AppendLine(fileBeforeTargets);
-            for (int channel = 0; channel < guids.Length;) {
+            List<object> targetCurves = new List<object>();
+            for (int channel = 0; channel < guids.Length; channel++) {
                 BiquadFilter[] filters = ((IIRChannelData)Channels[channel]).filters;
                 if (filters == null) {
                     continue;
                 }
-                for (int filter = 0; filter < filters.Length;) {
-                    result.Append(string.Format(filterEntry,
-                        filters[filter].CenterFreq.ToString(CultureInfo.InvariantCulture),
-                        filters[filter].Gain.ToString(CultureInfo.InvariantCulture),
-                        filters[filter].Q.ToString(CultureInfo.InvariantCulture),
-                        FilterTypeID(filters[filter]),
-                        guids[channel]
-                    ));
-                    if (++filter != filters.Length || ++channel != guids.Length) {
-                        result.AppendLine(",");
-                    } else {
-                        result.AppendLine();
-                    }
+                for (int filter = 0; filter < filters.Length; filter++) {
+                    JsonFile item = new JsonFile {
+                        { "Frequency", filters[filter].CenterFreq },
+                        { "Gain", filters[filter].Gain },
+                        { "Q", filters[filter].Q },
+                        { "Type", FilterTypeID(filters[filter]) }
+                    };
+
+                    targetCurves.Add(new JsonFile {
+                        { "_itemString", item.ToString() },
+                        { "_itemType", filterItemType },
+                        { "Channels", new object[] { guids[channel] } },
+                        { "All", false },
+                        { "Name", null },
+                        { "ApplyToReference", true },
+                        { "ApplyToFlat", true }
+                    });
                 }
             }
 
-            result.Append(fileEnd);
-            File.WriteAllText(path, result.ToString());
+            return new JsonFile {
+                { "_measurements", Array.Empty<object>() },
+                { MQXConsts.channelMappingKey, channelDataMap },
+                { channelListKey, orderedGuids },
+                { "CalibrationSettings", new JsonFile {
+                    { "AutoTrims", false },
+                    { "AutoDistance", false },
+                    { "AutoEnable", false },
+                    { "AutoBassManagement", false }
+                } },
+                { "TargetCurveSet", targetCurves.ToArray() },
+                { "PositionNames", new JsonFile() },
+                { "UsedLocalMicrophones", new JsonFile() }
+            }.ToString();
         }
 
         /// <summary>
@@ -203,60 +258,11 @@ namespace Cavern.Format.FilterSet {
         /// <summary>
         /// JSON tag for the list of channels.
         /// </summary>
-        const string channelList = "\"OrderedChannelGuids\":";
+        const string channelListKey = "OrderedChannelGuids";
 
         /// <summary>
-        /// Beginning of the JSON file.
+        /// Assembly-qualified type name for biquad filter items in MultEQ-X.
         /// </summary>
-        const string fileStart = "{ \"_measurements\": [], \"_channelDataMap\": {";
-
-        /// <summary>
-        /// A channel's metadata in the MultEQ-X configuration file.
-        /// </summary>
-        const string channelEntry = @"""{0}"": {{
-    ""Metadata"": {{
-        ""AvrOriginatingDesignation"": ""{1}"",
-        ""DisplayName"": ""{2}"",
-        ""PairDesignation"": ""{3}"",
-        ""PairDisplayName"": ""{4}"",
-        ""Location"": ""{5}""
-    }},
-    ""Calibration"": {{
-        ""IsEnabled"": true,
-        ""Trim"": {6},
-        ""DistanceMilliseconds"": {7},
-        ""PolarityError"": {8},
-        ""SpeakerSize"": ""Small"",
-        ""CrossoverFrequency"": 80.0
-    }},
-    ""TargetCurveCutoff"": {{
-        ""Mode"": ""Auto""
-    }}
-}}";
-
-        /// <summary>
-        /// The text separating the channels and the GUIDs.
-        /// </summary>
-        const string fileBeforeGuids = "}, \"OrderedChannelGuids\": [";
-
-        /// <summary>
-        /// The text separating the GUIDs and the EQs.
-        /// </summary>
-        const string fileBeforeTargets = "], \"CalibrationSettings\": { \"AutoTrims\": false, \"AutoDistance\": false, " +
-            "\"AutoEnable\": false, \"AutoBassManagement\": false }, \"TargetCurveSet\": [";
-
-        /// <summary>
-        /// A filter entry in a MultEQ-X configuration file, prepared for a single channel.
-        /// </summary>
-        const string filterEntry = @"    {{
-      ""_itemString"": ""{{\""Frequency\"":{0},\""Gain\"":{1},\""Q\"":{2},\""Type\"":{3}}}"",
-      ""_itemType"": ""Audyssey.CoreData.BiquadData, Audyssey.CoreData, Version=1.4.610.0, Culture=neutral, PublicKeyToken=null"",
-      ""Channels"": [ ""{4}"" ], ""All"": false, ""Name"": null, ""ApplyToReference"": true, ""ApplyToFlat"": true
-    }}";
-
-        /// <summary>
-        /// Closing of the JSON file.
-        /// </summary>
-        const string fileEnd = "], \"PositionNames\": {}, \"UsedLocalMicrophones\": {} }";
+        const string filterItemType = "Audyssey.CoreData.BiquadData, Audyssey.CoreData, Version=1.4.610.0, Culture=neutral, PublicKeyToken=null";
     }
 }

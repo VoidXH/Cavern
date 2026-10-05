@@ -10,7 +10,7 @@ namespace Test.Cavern.QuickEQ.Format.FilterSet;
 /// Tests if <see cref="MultEQXT32FilterSet"/> handles legacy and current ADY files.
 /// </summary>
 [TestClass]
-public class MultEQXT32_Tests {
+public class MultEQXT32FilterSet_Tests {
     /// <summary>
     /// Tests export on the current ADY schema.
     /// </summary>
