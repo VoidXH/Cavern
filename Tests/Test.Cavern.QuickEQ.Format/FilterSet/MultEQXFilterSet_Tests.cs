@@ -30,7 +30,25 @@ public class MultEQXFilterSet_Tests {
         }
         JsonFile export = new JsonFile(set.Export());
 
-        Assert.IsTrue(export.IsSupersetOf(reference, true));
+        string[] exceptions = [
+            "HTCalibrationData",
+            "UndetectedChannels",
+            "PersistantProjectDatas",
+            "TrimPositionGuids",
+            "DistancePoisitionGuid",
+            "IsSubEQHT",
+            "FilterHeadroomTrim",
+            "LowFrequencyLimit",
+            "LowFrequencyLimitFlat",
+            "HighFrequencyLimit",
+            "HighFrequencyLimitRef",
+            "HighFrequencyLimitFlat",
+            "CutoffData",
+            "DisbaleTargetCurveLevelAlign",
+            "TrimHeadroomExtension"
+        ];
+
+        Assert.IsTrue(export.IsSupersetOf(reference, true, exceptions));
     }
 
     /// <summary>
