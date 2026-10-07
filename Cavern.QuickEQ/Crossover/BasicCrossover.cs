@@ -44,12 +44,7 @@ namespace Cavern.QuickEQ.Crossover {
         /// <param name="mixing">Which channels to mix to, and which channels to mix from at what crossover frequency</param>
         /// <param name="order">Filter order (must be even, 2 = 12 dB/octave)</param>
         /// <param name="q">Q-factor for each biquad stage</param>
-        public BasicCrossover(CrossoverDescription mixing, int order, double q) : base(mixing, CrossoverType.Biquad) {
-            ValidateOrder(order);
-            Order = order;
-            Q = q;
-            Slope = CrossoverSlope.Butterworth;
-        }
+        public BasicCrossover(CrossoverDescription mixing, int order, double q) : this(mixing, order, q, CrossoverType.Biquad) { }
 
         /// <summary>
         /// Create a biquad crossover with specified order and standard slope type.
@@ -57,11 +52,29 @@ namespace Cavern.QuickEQ.Crossover {
         /// <param name="mixing">Which channels to mix to, and which channels to mix from at what crossover frequency</param>
         /// <param name="order">Filter order (must be even, 2 = 12 dB/octave)</param>
         /// <param name="slope">Crossover slope type (Butterworth, Linkwitz-Riley, or Bessel)</param>
-        public BasicCrossover(CrossoverDescription mixing, int order, CrossoverSlope slope) : base(mixing, CrossoverType.Biquad) {
+        public BasicCrossover(CrossoverDescription mixing, int order, CrossoverSlope slope) : this(mixing, order, slope, CrossoverType.Biquad) { }
+
+        /// <summary>
+        /// Create a crossover with specified order, slope, and type.
+        /// </summary>
+        /// <param name="mixing">Which channels to mix to, and which channels to mix from at what crossover frequency</param>
+        /// <param name="order">Filter order (must be even, 2 = 12 dB/octave)</param>
+        /// <param name="slope">Crossover slope type (Butterworth, Linkwitz-Riley, or Bessel)</param>
+        /// <param name="type">The crossover type</param>
+        protected BasicCrossover(CrossoverDescription mixing, int order, CrossoverSlope slope, CrossoverType type) : this(mixing, order, slope.GetQFactor(), type) { }
+
+        /// <summary>
+        /// Create a crossover with specified order, custom Q-factor, and type.
+        /// </summary>
+        /// <param name="mixing">Which channels to mix to, and which channels to mix from at what crossover frequency</param>
+        /// <param name="order">Filter order (must be even, 2 = 12 dB/octave)</param>
+        /// <param name="q">Q-factor for each biquad stage</param>
+        /// <param name="type">The crossover type</param>
+        protected BasicCrossover(CrossoverDescription mixing, int order, double q, CrossoverType type) : base(mixing, type) {
             ValidateOrder(order);
             Order = order;
-            Slope = slope;
-            Q = slope.GetQFactor();
+            Q = q;
+            Slope = CrossoverSlope.Butterworth;
         }
 
         static void ValidateOrder(int order) {

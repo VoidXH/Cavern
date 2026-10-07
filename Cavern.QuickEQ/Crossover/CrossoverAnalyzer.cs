@@ -37,14 +37,36 @@ namespace Cavern.QuickEQ.Crossover {
         public float precision = 10;
 
         /// <summary>
+        /// Filter order (must be even, 2 = 12 dB/octave). Only used for Biquad and SyntheticBiquad types.
+        /// </summary>
+        public int order = 2;
+
+        /// <summary>
+        /// Crossover slope type. Only used for Biquad and SyntheticBiquad types.
+        /// </summary>
+        public CrossoverSlope slope = CrossoverSlope.Butterworth;
+
+        /// <summary>
         /// A multichannel crossover analyzer instance.
         /// </summary>
         /// <param name="type">The type of crossover to use</param>
         /// <param name="sampleRate">The sample rate of recorded or simulated transfer functions of each channel
         /// that will be analyzed</param>
-        public CrossoverAnalyzer(CrossoverType type, int sampleRate) {
+        public CrossoverAnalyzer(CrossoverType type, int sampleRate) : this(type, sampleRate, 2, CrossoverSlope.Butterworth) { }
+
+        /// <summary>
+        /// A multichannel crossover analyzer instance with custom order and slope.
+        /// </summary>
+        /// <param name="type">The type of crossover to use</param>
+        /// <param name="sampleRate">The sample rate of recorded or simulated transfer functions of each channel
+        /// that will be analyzed</param>
+        /// <param name="order">Filter order (must be even, 2 = 12 dB/octave). Only used for Biquad and SyntheticBiquad types.</param>
+        /// <param name="slope">Crossover slope type. Only used for Biquad and SyntheticBiquad types.</param>
+        public CrossoverAnalyzer(CrossoverType type, int sampleRate, int order, CrossoverSlope slope) {
             this.type = type;
             this.sampleRate = sampleRate;
+            this.order = order;
+            this.slope = slope;
         }
 
         /// <summary>
@@ -66,6 +88,26 @@ namespace Cavern.QuickEQ.Crossover {
         }
 
         /// <summary>
+        /// Gets the optimal frequency to put the crossover point at for a single channel by simulation with custom order and slope.
+        /// </summary>
+        /// <param name="type">The type of crossover to use</param>
+        /// <param name="lowTransfer">Transfer function of the low-frequency path</param>
+        /// <param name="highTransfer">Transfer function of the high-frequency path</param>
+        /// <param name="sampleRate">Sample rate where the transfer functions were recorded</param>
+        /// <param name="minFreq">Minimum allowed crossover frequency</param>
+        /// <param name="maxFreq">Maximum allowed crossover frequency</param>
+        /// <param name="precision">Steps between checked crossover frequencies</param>
+        /// <param name="order">Filter order (must be even, 2 = 12 dB/octave). Only used for Biquad and SyntheticBiquad types.</param>
+        /// <param name="slope">Crossover slope type. Only used for Biquad and SyntheticBiquad types.</param>
+        /// <remarks>This function doesn't account for the 10 dB gain of LFE channels as it could be used for determining the
+        /// crossover point of multiway speakers too.</remarks>
+        public static float FindCrossoverFrequency(CrossoverType type, Complex[] lowTransfer, Complex[] highTransfer, int sampleRate,
+            float minFreq, float maxFreq, float precision, int order, CrossoverSlope slope) {
+            using FFTCache cache = new ThreadSafeFFTCache(lowTransfer.Length);
+            return FindCrossoverFrequency(type, lowTransfer, highTransfer, sampleRate, minFreq, maxFreq, precision, order, slope, cache);
+        }
+
+        /// <summary>
         /// Gets the optimal frequency to put the crossover point at for a single channel by simulation.
         /// </summary>
         /// <param name="type">The type of crossover to use</param>
@@ -80,10 +122,30 @@ namespace Cavern.QuickEQ.Crossover {
         /// crossover point of multiway speakers too.</remarks>
         public static float FindCrossoverFrequency(CrossoverType type, Complex[] lowTransfer, Complex[] highTransfer, int sampleRate,
             float minFreq, float maxFreq, float precision, FFTCache cache) {
+            return FindCrossoverFrequency(type, lowTransfer, highTransfer, sampleRate, minFreq, maxFreq, precision, 2, CrossoverSlope.Butterworth, cache);
+        }
+
+        /// <summary>
+        /// Gets the optimal frequency to put the crossover point at for a single channel by simulation with custom order and slope.
+        /// </summary>
+        /// <param name="type">The type of crossover to use</param>
+        /// <param name="lowTransfer">Transfer function of the low-frequency path</param>
+        /// <param name="highTransfer">Transfer function of the high-frequency path</param>
+        /// <param name="sampleRate">Sample rate where the transfer functions were recorded</param>
+        /// <param name="minFreq">Minimum allowed crossover frequency</param>
+        /// <param name="maxFreq">Maximum allowed crossover frequency</param>
+        /// <param name="precision">Steps between checked crossover frequencies</param>
+        /// <param name="order">Filter order (must be even, 2 = 12 dB/octave). Only used for Biquad and SyntheticBiquad types.</param>
+        /// <param name="slope">Crossover slope type. Only used for Biquad and SyntheticBiquad types.</param>
+        /// <param name="cache">Preallocated FFT cache for optimization</param>
+        /// <remarks>This function doesn't account for the 10 dB gain of LFE channels as it could be used for determining the
+        /// crossover point of multiway speakers too.</remarks>
+        public static float FindCrossoverFrequency(CrossoverType type, Complex[] lowTransfer, Complex[] highTransfer, int sampleRate,
+            float minFreq, float maxFreq, float precision, int order, CrossoverSlope slope, FFTCache cache) {
             float bestValue = float.NegativeInfinity;
             float bestFrequency = minFreq;
             for (float freq = minFreq; freq <= maxFreq; freq += precision) {
-                float value = GetCrossoverValue(type, lowTransfer, highTransfer, sampleRate, freq, cache);
+                float value = GetCrossoverValue(type, lowTransfer, highTransfer, sampleRate, freq, order, slope, cache);
                 if (bestValue < value) {
                     bestValue = value;
                     bestFrequency = freq;
@@ -218,6 +280,34 @@ namespace Cavern.QuickEQ.Crossover {
         }
 
         /// <summary>
+        /// Calculate a single crossover point's score for comparing it to others with custom order and slope.
+        /// </summary>
+        /// <param name="type">The type of crossover to use</param>
+        /// <param name="lowTransfer">Transfer function of the low-frequency path</param>
+        /// <param name="highTransfer">Transfer function of the high-frequency path</param>
+        /// <param name="sampleRate">Sample rate where the transfer functions were recorded</param>
+        /// <param name="freq">Crossover point frequency to score</param>
+        /// <param name="order">Filter order (must be even, 2 = 12 dB/octave). Only used for Biquad and SyntheticBiquad types.</param>
+        /// <param name="slope">Crossover slope type. Only used for Biquad and SyntheticBiquad types.</param>
+        /// <param name="cache">Preallocated FFT cache for optimization</param>
+        protected static float GetCrossoverValue(CrossoverType type, Complex[] lowTransfer, Complex[] highTransfer, int sampleRate, float freq, int order, CrossoverSlope slope, FFTCache cache) {
+            Complex[] lowCurrent = lowTransfer.FastClone();
+            Complex[] highCurrent = highTransfer.FastClone();
+            Complex[] work = new Complex[lowCurrent.Length];
+
+            Crossover.GetLowpass(type, sampleRate, freq, cache.Size, order, slope).ParseForFFT(work);
+            work.InPlaceFFT(cache);
+            lowCurrent.Convolve(work);
+
+            Crossover.GetHighpass(type, sampleRate, freq, cache.Size, order, slope).ParseForFFT(work);
+            work.InPlaceFFT(cache);
+            highCurrent.Convolve(work);
+
+            lowCurrent.Add(highCurrent);
+            return lowCurrent.GetRMSMagnitude();
+        }
+
+        /// <summary>
         /// Gets the optimal frequencies to put the crossover point at for each channel by simulation.
         /// </summary>
         /// <param name="measurement">Measurements or simulations at the reference position</param>
@@ -252,7 +342,7 @@ namespace Cavern.QuickEQ.Crossover {
             Parallelizer.ForUnchecked(0, channels.Length, i => {
                 if (!channels[i].LFE) {
                     FFTCache cache = pool.Lease();
-                    result[i] = FindCrossoverFrequency(type, subs, measurement[i], sampleRate, minFreq, maxFreq, precision, cache);
+                    result[i] = FindCrossoverFrequency(type, subs, measurement[i], sampleRate, minFreq, maxFreq, precision, order, slope, cache);
                     pool.Return(cache);
                 }
             });

@@ -14,14 +14,14 @@ namespace Cavern.QuickEQ.Crossover {
         /// Creates a phase distortion-less <see cref="BasicCrossover"/> with default 2nd-order Butterworth (12 dB/octave).
         /// </summary>
         /// <param name="mixing">Which channels to mix to, and which channels to mix from at what crossover frequency</param>
-        public SyntheticBiquadCrossover(CrossoverDescription mixing) : base(mixing, 2, CrossoverSlope.Butterworth) { }
+        public SyntheticBiquadCrossover(CrossoverDescription mixing) : base(mixing, 2, CrossoverSlope.Butterworth, CrossoverType.SyntheticBiquad) { }
 
         /// <summary>
         /// Creates a phase distortion-less <see cref="BasicCrossover"/> with specified order, defaulting to Butterworth slope.
         /// </summary>
         /// <param name="mixing">Which channels to mix to, and which channels to mix from at what crossover frequency</param>
         /// <param name="order">Filter order (must be even, 2 = 12 dB/octave)</param>
-        public SyntheticBiquadCrossover(CrossoverDescription mixing, int order) : base(mixing, order, CrossoverSlope.Butterworth) { }
+        public SyntheticBiquadCrossover(CrossoverDescription mixing, int order) : base(mixing, order, CrossoverSlope.Butterworth, CrossoverType.SyntheticBiquad) { }
 
         /// <summary>
         /// Creates a phase distortion-less <see cref="BasicCrossover"/> with specified order and custom Q-factor.
@@ -29,7 +29,7 @@ namespace Cavern.QuickEQ.Crossover {
         /// <param name="mixing">Which channels to mix to, and which channels to mix from at what crossover frequency</param>
         /// <param name="order">Filter order (must be even, 2 = 12 dB/octave)</param>
         /// <param name="q">Q-factor for each biquad stage</param>
-        public SyntheticBiquadCrossover(CrossoverDescription mixing, int order, double q) : base(mixing, order, q) { }
+        public SyntheticBiquadCrossover(CrossoverDescription mixing, int order, double q) : base(mixing, order, q, CrossoverType.SyntheticBiquad) { }
 
         /// <summary>
         /// Creates a phase distortion-less <see cref="BasicCrossover"/> with specified order and standard slope type.
@@ -37,7 +37,7 @@ namespace Cavern.QuickEQ.Crossover {
         /// <param name="mixing">Which channels to mix to, and which channels to mix from at what crossover frequency</param>
         /// <param name="order">Filter order (must be even, 2 = 12 dB/octave)</param>
         /// <param name="slope">Crossover slope type (Butterworth, Linkwitz-Riley, or Bessel)</param>
-        public SyntheticBiquadCrossover(CrossoverDescription mixing, int order, CrossoverSlope slope) : base(mixing, order, slope) { }
+        public SyntheticBiquadCrossover(CrossoverDescription mixing, int order, CrossoverSlope slope) : base(mixing, order, slope, CrossoverType.SyntheticBiquad) { }
 
         /// <summary>
         /// Get a <see cref="FilterAnalyzer"/> instance for a cascade of biquad filters.

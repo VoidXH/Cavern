@@ -52,6 +52,23 @@ namespace Cavern.QuickEQ.Crossover {
         }
 
         /// <summary>
+        /// Create the appropriate type of <see cref="Crossover"/> object for the selected <paramref name="type"/> with custom order and slope.
+        /// </summary>
+        /// <param name="type">The type of crossover to use</param>
+        /// <param name="mixing">Which channels to mix to, and which channels to mix from at what crossover frequency</param>
+        /// <param name="order">Filter order (must be even, 2 = 12 dB/octave). Only used for Biquad and SyntheticBiquad types.</param>
+        /// <param name="slope">Crossover slope type. Only used for Biquad and SyntheticBiquad types.</param>
+        public static Crossover Create(CrossoverType type, CrossoverDescription mixing, int order, CrossoverSlope slope) {
+            return type switch {
+                CrossoverType.Biquad => new BasicCrossover(mixing, order, slope),
+                CrossoverType.Cavern => new CavernCrossover(mixing),
+                CrossoverType.SyntheticBiquad => new SyntheticBiquadCrossover(mixing, order, slope),
+                CrossoverType.Disabled => new DisabledCrossover(mixing),
+                _ => throw new NotImplementedException()
+            };
+        }
+
+        /// <summary>
         /// Generate a 2nd order impulse response for a simple filter.
         /// </summary>
         static float[] Simulate(BiquadFilter filter, int length) {
@@ -110,6 +127,18 @@ namespace Cavern.QuickEQ.Crossover {
             Create(type, null).GetLowpass(sampleRate, frequency, length);
 
         /// <summary>
+        /// Generate an impulse response for the lowpass part of a crossover with custom order and slope.
+        /// </summary>
+        /// <param name="type">The type of crossover to use</param>
+        /// <param name="sampleRate">Filter sample rate</param>
+        /// <param name="frequency">Lowpass cutoff point</param>
+        /// <param name="length">Filter length in samples</param>
+        /// <param name="order">Filter order (must be even, 2 = 12 dB/octave). Only used for Biquad and SyntheticBiquad types.</param>
+        /// <param name="slope">Crossover slope type. Only used for Biquad and SyntheticBiquad types.</param>
+        public static float[] GetLowpass(CrossoverType type, int sampleRate, float frequency, int length, int order, CrossoverSlope slope) =>
+            Create(type, null, order, slope).GetLowpass(sampleRate, frequency, length);
+
+        /// <summary>
         /// Generate an impulse response for the highpass part of a crossover.
         /// </summary>
         /// <param name="type">The type of crossover to use</param>
@@ -118,5 +147,17 @@ namespace Cavern.QuickEQ.Crossover {
         /// <param name="length">Filter length in samples</param>
         public static float[] GetHighpass(CrossoverType type, int sampleRate, float frequency, int length) =>
             Create(type, null).GetHighpass(sampleRate, frequency, length);
+
+        /// <summary>
+        /// Generate an impulse response for the highpass part of a crossover with custom order and slope.
+        /// </summary>
+        /// <param name="type">The type of crossover to use</param>
+        /// <param name="sampleRate">Filter sample rate</param>
+        /// <param name="frequency">Highpass cutoff point</param>
+        /// <param name="length">Filter length in samples</param>
+        /// <param name="order">Filter order (must be even, 2 = 12 dB/octave). Only used for Biquad and SyntheticBiquad types.</param>
+        /// <param name="slope">Crossover slope type. Only used for Biquad and SyntheticBiquad types.</param>
+        public static float[] GetHighpass(CrossoverType type, int sampleRate, float frequency, int length, int order, CrossoverSlope slope) =>
+            Create(type, null, order, slope).GetHighpass(sampleRate, frequency, length);
     }
 }

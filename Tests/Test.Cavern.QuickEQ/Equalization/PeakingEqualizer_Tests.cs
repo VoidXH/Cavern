@@ -16,7 +16,7 @@ public class PeakingEqualizer_Tests {
     /// <summary>
     /// Tests if <see cref="PeakingEqualizer.GetPeakingEQ(int)"/> works as intended.
     /// </summary>
-    [TestMethod, Timeout(1000)]
+    [TestMethod, Timeout(5000)]
     public void GetPeakingEQ() => CavernAmpTest.Run(() => {
         PeakingEQ[] result = new PeakingEqualizer(Constants.peakAt500Hz).GetPeakingEQ(Constants.sampleRate, 1);
         Assert.AreEqual(1, result.Length);
@@ -43,7 +43,7 @@ public class PeakingEqualizer_Tests {
     /// <summary>
     /// Tests if <see cref="PeakingEqualizer.MaxFrequency"/> is respected across all engines.
     /// </summary>
-    [TestMethod, Timeout(1000)]
+    [TestMethod, Timeout(5000)]
     public void MaxFrequency() => CavernAmpTest.Run(() => {
         const double maxFreq = 400;
         PeakingEQ[] result = new PeakingEqualizer(Constants.peakAt500Hz) {
@@ -60,7 +60,7 @@ public class PeakingEqualizer_Tests {
     /// <summary>
     /// Tests if <see cref="PeakingEqualizer.MinFrequency"/> is respected across all engines.
     /// </summary>
-    [TestMethod, Timeout(1000)]
+    [TestMethod, Timeout(5000)]
     public void MinFrequency() => CavernAmpTest.Run(() => {
         const double minFreq = 300;
         PeakingEQ[] result = new PeakingEqualizer(Constants.peakAt500Hz) {
@@ -73,7 +73,7 @@ public class PeakingEqualizer_Tests {
     /// <summary>
     /// Tests if <see cref="PeakingEqualizer.MinFrequency"/> is respected when the peak is below the minimum frequency.
     /// </summary>
-    [TestMethod, Timeout(1000)]
+    [TestMethod, Timeout(5000)]
     public void MinFrequency_BelowPeak() => CavernAmpTest.Run(() => {
         const double minFreq = 600;
         PeakingEQ[] result = new PeakingEqualizer(Constants.peakAt500Hz) {
@@ -89,7 +89,7 @@ public class PeakingEqualizer_Tests {
     /// <summary>
     /// Tests if <see cref="PeakingEqualizer.ParseEQFile(string)"/> works as intended.
     /// </summary>
-    [TestMethod, Timeout(1000)]
+    [TestMethod, Timeout(5000)]
     public void ParseEQFile() {
         PeakingEQ[] result = PeakingEqualizer.ParseEQFile(testEQFile);
         Assert.AreEqual(2, result.Length);

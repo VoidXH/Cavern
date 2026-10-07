@@ -21,13 +21,13 @@ static class Crossovers {
     /// <summary>
     /// Description of a 4.2 crossover where all channels are mixed to both LFE at the same <see cref="freq"/>uency.
     /// </summary>
-    static CrossoverDescription Description4_2 => description4_2 ??= new((false, freq), (false, freq), (false, freq), (false, freq), (true, 0), (true, 0));
+    public static CrossoverDescription Description4_2 => description4_2 ??= new((false, freq), (false, freq), (false, freq), (false, freq), (true, 0), (true, 0));
     static CrossoverDescription description4_2;
 
     /// <summary>
     /// Description of a 5.1 crossover where all channels are mixed to the LFE at the same <see cref="freq"/>uency.
     /// </summary>
-    static CrossoverDescription Description5_1 => description5_1 ??= new((false, freq), (false, freq), (false, freq), (true, 0), (false, freq), (false, freq));
+    public static CrossoverDescription Description5_1 => description5_1 ??= new((false, freq), (false, freq), (false, freq), (true, 0), (false, freq), (false, freq));
     static CrossoverDescription description5_1;
 
     /// <summary>
