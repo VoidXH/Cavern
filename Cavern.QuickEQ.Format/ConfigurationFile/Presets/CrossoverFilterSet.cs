@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Cavern.Filters;
 using Cavern.Filters.Utilities;
 using Cavern.QuickEQ.Crossover;
+using Cavern.QuickEQ.Crossover.Enums;
 using Cavern.Utilities;
 
 using Crossover = Cavern.QuickEQ.Crossover.Crossover;

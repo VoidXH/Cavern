@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 
 using Cavern.QuickEQ.Equalization;
+using Cavern.QuickEQ.Utilities;
+using Cavern.Utilities;
 
 namespace Cavern.QuickEQ.Graphing {
     /// <summary>
@@ -22,18 +24,18 @@ namespace Cavern.QuickEQ.Graphing {
 
         /// <summary>
         /// Add a <paramref name="waveform"/> with an ARGB <paramref name="color"/>.
+        /// Uses peak-hold scaling to ensure narrow peaks are always visible.
         /// </summary>
         public void AddWaveform(float[] waveform, uint color) {
-            List<Band> bands = new List<Band>(waveform.Length);
-            for (int i = 0; i < waveform.Length; i++) {
-                bands.Add(new Band(i, waveform[i]));
+            float[] scaled = waveform.Length > Width
+                ? GraphUtils.Scale(waveform, Width)
+                : waveform;
+            List<Band> bands = new List<Band>(scaled.Length);
+            for (int i = 0; i < scaled.Length; i++) {
+                bands.Add(new Band(i, scaled[i]));
             }
             Equalizer display = new Equalizer(bands, true);
-
-            if (EndFrequency < waveform.Length) {
-                EndFrequency = waveform.Length;
-            }
-
+            EndFrequency = scaled.Length;
             AddCurve(display, color);
         }
 

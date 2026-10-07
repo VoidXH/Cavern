@@ -1,6 +1,7 @@
 ﻿using System;
 
 using Cavern.Channels;
+using Cavern.QuickEQ.Crossover.Enums;
 using Cavern.QuickEQ.Utilities;
 using Cavern.Utilities;
 using Cavern.Utilities.Threading;

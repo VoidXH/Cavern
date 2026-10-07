@@ -2,31 +2,10 @@
 
 using Cavern.Filters;
 using Cavern.Filters.Interfaces;
+using Cavern.QuickEQ.Crossover.Enums;
 using Cavern.QuickEQ.SignalGeneration;
 
 namespace Cavern.QuickEQ.Crossover {
-    /// <summary>
-    /// Supported types of crossovers.
-    /// </summary>
-    public enum CrossoverType {
-        /// <summary>
-        /// No crossover is applied.
-        /// </summary>
-        Disabled,
-        /// <summary>
-        /// Crossover made of generic 2nd order highpass/lowpass filters.
-        /// </summary>
-        Biquad,
-        /// <summary>
-        /// Brickwall FIR crossover.
-        /// </summary>
-        Cavern,
-        /// <summary>
-        /// FIR realization of <see cref="Biquad"/>, without any phase distortions.
-        /// </summary>
-        SyntheticBiquad
-    }
-
     /// <summary>
     /// A crossover to be exported as FIR filters or written into an Equalizer APO configuration file.
     /// </summary>
@@ -88,7 +67,7 @@ namespace Cavern.QuickEQ.Crossover {
         /// <param name="sampleRate">Filter sample rate</param>
         /// <param name="frequency">Highpass cutoff point</param>
         /// <param name="length">Filter length in samples</param>
-        public virtual float[] GetHighpass(int sampleRate, float frequency, int length) => Simulate(new Highpass(sampleRate, frequency), length);
+        public abstract float[] GetHighpass(int sampleRate, float frequency, int length);
 
         /// <summary>
         /// Get the most quickly processed version of this crossover's highpass.
@@ -96,7 +75,7 @@ namespace Cavern.QuickEQ.Crossover {
         /// <param name="sampleRate">Filter sample rate</param>
         /// <param name="frequency">Lowpass cutoff point</param>
         /// <param name="length">Filter length in samples, if the filter can only be synthesized as a convolution</param>
-        public virtual Filter GetHighpassOptimized(int sampleRate, float frequency, int length) => new FastConvolver(GetHighpass(sampleRate, frequency, length), sampleRate, 0);
+        public abstract Filter GetHighpassOptimized(int sampleRate, float frequency, int length);
 
         /// <summary>
         /// Get a FIR filter for the lowpass part of the crossover.
@@ -104,7 +83,7 @@ namespace Cavern.QuickEQ.Crossover {
         /// <param name="sampleRate">Filter sample rate</param>
         /// <param name="frequency">Lowpass cutoff point</param>
         /// <param name="length">Filter length in samples</param>
-        public virtual float[] GetLowpass(int sampleRate, float frequency, int length) => Simulate(new Lowpass(sampleRate, frequency), length);
+        public abstract float[] GetLowpass(int sampleRate, float frequency, int length);
 
         /// <summary>
         /// Get the most quickly processed version of this crossover's lowpass.
@@ -112,7 +91,7 @@ namespace Cavern.QuickEQ.Crossover {
         /// <param name="sampleRate">Filter sample rate</param>
         /// <param name="frequency">Lowpass cutoff point</param>
         /// <param name="length">Filter length in samples, if the filter can only be synthesized as a convolution</param>
-        public virtual Filter GetLowpassOptimized(int sampleRate, float frequency, int length) => new FastConvolver(GetLowpass(sampleRate, frequency, length), sampleRate, 0);
+        public abstract Filter GetLowpassOptimized(int sampleRate, float frequency, int length);
 
         /// <summary>
         /// Use this value to mix crossover results to an LFE channel.

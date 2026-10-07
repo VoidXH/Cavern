@@ -1,4 +1,4 @@
-﻿using Cavern.QuickEQ.Crossover;
+﻿using Cavern.QuickEQ.Crossover.Enums;
 using Cavern.WPF.Consts;
 
 namespace Cavern.WPF.Utils;

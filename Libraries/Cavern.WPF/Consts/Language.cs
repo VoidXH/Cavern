@@ -2,7 +2,7 @@
 using System.Windows;
 
 using Cavern.Channels;
-using Cavern.QuickEQ.Crossover;
+using Cavern.QuickEQ.Crossover.Enums;
 using VoidX.WPF.Language;
 
 namespace Cavern.WPF.Consts;

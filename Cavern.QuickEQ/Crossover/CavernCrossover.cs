@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Globalization;
 
+using Cavern.Filters;
+using Cavern.QuickEQ.Crossover.Enums;
 using Cavern.QuickEQ.Equalization;
 
 namespace Cavern.QuickEQ.Crossover {
@@ -28,6 +30,9 @@ namespace Cavern.QuickEQ.Crossover {
         }, true).GetConvolution(sampleRate, length);
 
         /// <inheritdoc/>
+        public override Filter GetHighpassOptimized(int sampleRate, float frequency, int length) => new FastConvolver(GetHighpass(sampleRate, frequency, length), sampleRate, 0);
+
+        /// <inheritdoc/>
         public override void AddLowpass(List<string> wipConfig, float frequency) {
             float offsetFreq = frequency * 1.032258f; // Removes crossover notch caused by FIR resolution
             wipConfig.Add($"GraphicEQ: {offsetFreq.ToString(CultureInfo.InvariantCulture)} 0;" +
@@ -40,5 +45,8 @@ namespace Cavern.QuickEQ.Crossover {
             new Band(frequency, 0),
             new Band(frequency * 1.032258f, -48) // Removes crossover notch caused by FIR resolution
         }, true).GetConvolution(sampleRate, length);
+
+        /// <inheritdoc/>
+        public override Filter GetLowpassOptimized(int sampleRate, float frequency, int length) => new FastConvolver(GetLowpass(sampleRate, frequency, length), sampleRate, 0);
     }
 }
