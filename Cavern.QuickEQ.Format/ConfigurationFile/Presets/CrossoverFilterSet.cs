@@ -74,6 +74,24 @@ namespace Cavern.Format.ConfigurationFile.Presets {
         /// An added crossover step to a <see cref="ConfigurationFile"/> filter graph.
         /// </summary>
         /// <param name="name">User-defined name of this crossover that will be given to the created split point</param>
+        /// <param name="type">Crossover implementation algorithm</param>
+        /// <param name="sampleRate">Sample rate of the DSP this filter set is applied to</param>
+        /// <param name="filterLength">If the crossover <paramref name="type"/> can only be implemented as a convolution,
+        /// this will be its sample count</param>
+        /// <param name="mixing">Which channels to mix to, and which channels to mix from at what crossover frequency</param>
+        /// <param name="order">Filter order (must be even, 2 = 12 dB/octave). Only used for Biquad and SyntheticBiquad types.</param>
+        /// <param name="slope">Crossover slope type. Only used for Biquad and SyntheticBiquad types.</param>
+        public CrossoverFilterSet(string name, CrossoverType type, int sampleRate, int filterLength, CrossoverDescription mixing, int order, CrossoverSlope slope) {
+            this.name = name;
+            generator = Crossover.Create(type, mixing, order, slope);
+            this.sampleRate = sampleRate;
+            this.filterLength = filterLength;
+        }
+
+        /// <summary>
+        /// An added crossover step to a <see cref="ConfigurationFile"/> filter graph.
+        /// </summary>
+        /// <param name="name">User-defined name of this crossover that will be given to the created split point</param>
         /// <param name="crossover">Fetch crossover data from this</param>
         /// <param name="sampleRate">Sample rate of the DSP this filter set is applied to</param>
         /// <param name="filterLength">If the <paramref name="crossover"/> can only be implemented as a convolution,

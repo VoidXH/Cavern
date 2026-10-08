@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 using Cavern.Filters;
 using Cavern.QuickEQ.Crossover.Enums;
 
@@ -23,5 +25,11 @@ namespace Cavern.QuickEQ.Crossover {
 
         /// <inheritdoc/>
         public override Filter GetLowpassOptimized(int sampleRate, float frequency, int length) => new BypassFilter(string.Empty);
+
+        /// <inheritdoc/>
+        public override void AddHighpass(List<string> wipConfig, float frequency) { }
+
+        /// <inheritdoc/>
+        public override void AddLowpass(List<string> wipConfig, float frequency) { }
     }
 }

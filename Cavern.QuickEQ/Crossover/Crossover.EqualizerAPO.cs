@@ -51,22 +51,13 @@ namespace Cavern.QuickEQ.Crossover {
         /// <summary>
         /// Add the filter's interpretation of highpass to the previously selected channel in an Equalizer APO configuration file.
         /// </summary>
-        public virtual void AddHighpass(List<string> wipConfig, float frequency) {
-            string hpf = $"Filter: ON HP Fc {frequency} Hz";
-            wipConfig.Add(hpf);
-            wipConfig.Add(hpf);
-        }
+        public abstract void AddHighpass(List<string> wipConfig, float frequency);
 
         /// <summary>
         /// Add the filter's interpretation of lowpass to the previously selected channel in an Equalizer APO configuration file.
         /// </summary>
         /// <remarks>Don't forget to call <see cref="AddExtraOperations(List{string})"/>, this is generally the best place for it.</remarks>
-        public virtual void AddLowpass(List<string> wipConfig, float frequency) {
-            string lpf = $"Filter: ON LP Fc {frequency} Hz";
-            wipConfig.Add(lpf);
-            wipConfig.Add(lpf);
-            AddExtraOperations(wipConfig);
-        }
+        public abstract void AddLowpass(List<string> wipConfig, float frequency);
 
         /// <summary>
         /// Get the labels of channels to route bass to.

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 using Cavern.Filters;
 using Cavern.QuickEQ.Crossover.Enums;
@@ -39,20 +40,20 @@ namespace Cavern.QuickEQ.Crossover {
         public BasicCrossover(CrossoverDescription mixing, int order) : this(mixing, order, CrossoverSlope.Butterworth) { }
 
         /// <summary>
-        /// Create a biquad crossover with specified order and custom Q-factor.
-        /// </summary>
-        /// <param name="mixing">Which channels to mix to, and which channels to mix from at what crossover frequency</param>
-        /// <param name="order">Filter order (must be even, 2 = 12 dB/octave)</param>
-        /// <param name="q">Q-factor for each biquad stage</param>
-        public BasicCrossover(CrossoverDescription mixing, int order, double q) : this(mixing, order, q, CrossoverType.Biquad) { }
-
-        /// <summary>
         /// Create a biquad crossover with specified order and standard slope type.
         /// </summary>
         /// <param name="mixing">Which channels to mix to, and which channels to mix from at what crossover frequency</param>
         /// <param name="order">Filter order (must be even, 2 = 12 dB/octave)</param>
         /// <param name="slope">Crossover slope type (Butterworth, Linkwitz-Riley, or Bessel)</param>
         public BasicCrossover(CrossoverDescription mixing, int order, CrossoverSlope slope) : this(mixing, order, slope, CrossoverType.Biquad) { }
+
+        /// <summary>
+        /// Create a biquad crossover with specified order and custom Q-factor.
+        /// </summary>
+        /// <param name="mixing">Which channels to mix to, and which channels to mix from at what crossover frequency</param>
+        /// <param name="order">Filter order (must be even, 2 = 12 dB/octave)</param>
+        /// <param name="q">Q-factor for each biquad stage</param>
+        public BasicCrossover(CrossoverDescription mixing, int order, double q) : this(mixing, order, q, CrossoverType.Biquad) { }
 
         /// <summary>
         /// Create a crossover with specified order, slope, and type.
@@ -71,16 +72,13 @@ namespace Cavern.QuickEQ.Crossover {
         /// <param name="q">Q-factor for each biquad stage</param>
         /// <param name="type">The crossover type</param>
         protected BasicCrossover(CrossoverDescription mixing, int order, double q, CrossoverType type) : base(mixing, type) {
-            ValidateOrder(order);
-            Order = order;
-            Q = q;
-            Slope = CrossoverSlope.Butterworth;
-        }
-
-        static void ValidateOrder(int order) {
             if (order <= 0 || order % 2 != 0) {
                 throw new ArgumentException("Order must be a positive even number", nameof(order));
             }
+
+            Order = order;
+            Q = q;
+            Slope = CrossoverSlope.Butterworth;
         }
 
         /// <inheritdoc/>
@@ -94,6 +92,23 @@ namespace Cavern.QuickEQ.Crossover {
 
         /// <inheritdoc/>
         public override Filter GetLowpassOptimized(int sampleRate, float frequency, int length) => CreateCascade(sampleRate, frequency, false);
+
+        /// <inheritdoc/>
+        public override void AddHighpass(List<string> wipConfig, float frequency) {
+            string hpf = $"Filter: Filter: ON HPQ Fc {frequency} Hz Q {Q}";
+            for (int i = 0; i < Order / 2; i++) {
+                wipConfig.Add(hpf);
+            }
+        }
+
+        /// <inheritdoc/>
+        public override void AddLowpass(List<string> wipConfig, float frequency) {
+            string lpf = $"Filter: Filter: ON LPQ Fc {frequency} Hz Q {Q}";
+            for (int i = 0; i < Order / 2; i++) {
+                wipConfig.Add(lpf);
+            }
+            AddExtraOperations(wipConfig);
+        }
 
         /// <summary>
         /// Create a cascade of biquad filters for the specified order.

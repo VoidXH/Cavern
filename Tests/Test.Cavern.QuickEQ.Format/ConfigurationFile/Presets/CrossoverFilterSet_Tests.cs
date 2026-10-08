@@ -1,7 +1,12 @@
-﻿using Cavern.Filters.Utilities;
+using System.Collections.Generic;
+using System.Linq;
+
+using Cavern.Filters;
+using Cavern.Filters.Utilities;
 using Cavern.Format.ConfigurationFile;
 using Cavern.Format.ConfigurationFile.Presets;
 using Cavern.QuickEQ.Crossover;
+using Cavern.QuickEQ.Crossover.Enums;
 
 using Test.Cavern.QuickEQ.Consts;
 using Test.Cavern.QuickEQ.Format.Consts;
@@ -120,4 +125,27 @@ public class CrossoverFilterSet_Tests {
     /// </summary>
     [TestMethod, Timeout(1000)]
     public void OnEntireBass5_1() => OnEntireBass(Crossovers.Basic5_1);
+
+    /// <summary>
+    /// Tests if a 4th-order <see cref="CrossoverFilterSet"/> created through the order/slope constructor
+    /// produces 2-stage lowpass and highpass cascades in the filter graph.
+    /// </summary>
+    [TestMethod, Timeout(1000)]
+    public void Add_4thOrder_Creates2StageCascades() {
+        CrossoverDescription mixing = Crossovers.Basic5_1.Mixing;
+        CrossoverFilterSet set = new(string.Empty, CrossoverType.Biquad, Constants.sampleRate, Constants.convolutionLength, mixing, 4, CrossoverSlope.Butterworth);
+        CavernFilterStudioConfigurationFile config = new(string.Empty, mixing.Channels);
+        set.Add(config, 0);
+
+        HashSet<IFilterGraphNode> graph = FilterGraphNodeUtils.MapGraph(config.InputChannels.Select(x => x.root));
+        ComplexFilter[] cascades = graph.Where(x => x.Filter is ComplexFilter).Select(x => (ComplexFilter)x.Filter).ToArray();
+
+        ComplexFilter[] lowpass = cascades.Where(x => x.Filters.All(f => f is Lowpass)).ToArray();
+        ComplexFilter[] highpass = cascades.Where(x => x.Filters.All(f => f is Highpass)).ToArray();
+
+        Assert.IsTrue(lowpass.Length > 0, "No lowpass cascade found in the graph.");
+        Assert.IsTrue(highpass.Length > 0, "No highpass cascade found in the graph.");
+        Assert.IsTrue(lowpass.All(x => x.Filters.Count == 2), "A lowpass cascade does not have exactly 2 stages.");
+        Assert.IsTrue(highpass.All(x => x.Filters.Count == 2), "A highpass cascade does not have exactly 2 stages.");
+    }
 }
