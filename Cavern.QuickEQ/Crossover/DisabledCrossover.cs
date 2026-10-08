@@ -27,9 +27,13 @@ namespace Cavern.QuickEQ.Crossover {
         public override Filter GetLowpassOptimized(int sampleRate, float frequency, int length) => new BypassFilter(string.Empty);
 
         /// <inheritdoc/>
-        public override void AddHighpass(List<string> wipConfig, float frequency) { }
+        public override void AddHighpass(List<string> wipConfig, float frequency) {
+            // Disabled
+        }
 
         /// <inheritdoc/>
-        public override void AddLowpass(List<string> wipConfig, float frequency) { }
+        public override void AddLowpass(List<string> wipConfig, float frequency) {
+            // Disabled
+        }
     }
 }

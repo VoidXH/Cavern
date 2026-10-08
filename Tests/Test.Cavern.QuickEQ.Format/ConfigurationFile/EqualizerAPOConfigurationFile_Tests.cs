@@ -2,7 +2,13 @@ using Cavern;
 using Cavern.Filters;
 using Cavern.Filters.Utilities;
 using Cavern.Format.ConfigurationFile;
+using Cavern.Format.ConfigurationFile.Presets;
 using Cavern.Format.Utilities;
+using Cavern.QuickEQ.Crossover;
+using Cavern.QuickEQ.Crossover.Enums;
+
+using Test.Cavern.QuickEQ.Consts;
+using Test.Cavern.QuickEQ.Format.Consts;
 
 namespace Test.Cavern.QuickEQ.Format.ConfigurationFile;
 
@@ -30,6 +36,19 @@ public class EqualizerAPOConfigurationFile_Tests {
         Assert.IsTrue(reparsed.Any(line => line.StartsWith("Copy:") && line.Contains("V1=L+R") && line.Contains("V2=L+R")));
         CollectionAssert.Contains(reparsed, "Copy: V3=V1+V2");
         Assert.AreEqual(3, reparsed.Count(line => line.StartsWith("Copy:")));
+    }
+
+    /// <summary>
+    /// Tests if a 4th-order <see cref="CrossoverFilterSet"/> can be added to an <see cref="EqualizerAPOConfigurationFile"/>
+    /// and exported without throwing an exception.
+    /// </summary>
+    [TestMethod, Timeout(1000)]
+    public void Add_4thOrderCrossover_DoesNotThrow() {
+        CrossoverDescription mixing = Crossovers.Basic5_1.Mixing;
+        EqualizerAPOConfigurationFile configuration = new("Test", mixing.Channels, false);
+        CrossoverFilterSet set = new(string.Empty, CrossoverType.Biquad, Constants.sampleRate, Constants.convolutionLength, mixing, 4, CrossoverSlope.Butterworth);
+        set.Add(configuration, 0);
+        configuration.ExportToMemory("Test.txt");
     }
 
     /// <summary>

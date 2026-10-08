@@ -148,6 +148,11 @@ namespace Cavern.Format.ConfigurationFile {
                 if (baseFilter is IEqualizerAPOFilter filter) {
                     precedingCopies.Clear();
                     filter.ExportToEqualizerAPO(result);
+                } else if (baseFilter is ComplexFilter complex && complex.Filters.All(x => x is IEqualizerAPOFilter)) {
+                    precedingCopies.Clear();
+                    for (int j = 0; j < complex.Filters.Count; j++) {
+                        ((IEqualizerAPOFilter)complex.Filters[j]).ExportToEqualizerAPO(result);
+                    }
                 } else if (baseFilter is IConvolution convolution) {
                     precedingCopies.Clear();
                     result.Add(convolutionFilter + ConvolutionFileName(convolutionRoot, convolutions.Count));
