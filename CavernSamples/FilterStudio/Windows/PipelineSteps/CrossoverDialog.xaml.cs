@@ -3,6 +3,7 @@ using System.Linq;
 
 using Cavern.Channels;
 using Cavern.QuickEQ.Crossover;
+using Cavern.QuickEQ.Crossover.Enums;
 using Cavern.WPF.BaseClasses;
 using Cavern.WPF.Utils;
 

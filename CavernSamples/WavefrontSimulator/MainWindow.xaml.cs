@@ -1,19 +1,18 @@
-﻿using Microsoft.Win32;
+using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Drawing;
+using System.IO;
 using System.Numerics;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media.Imaging;
 
 using Cavern;
 using Cavern.Channels;
 using Cavern.Filters;
 using Cavern.Format;
 using Cavern.WPF.Utils;
-
-using Color = System.Drawing.Color;
 
 namespace WavefrontSimulator {
     /// <summary>
@@ -109,16 +108,15 @@ namespace WavefrontSimulator {
             }
         }
 
-        static Color DrawPixel(float strength) {
-            if (!float.IsNaN(strength)) {
-                return Color.FromArgb(
-                    Math.Max((int)(255 * (1 - Math.Abs(2 * strength))), 0),
-                    (int)(127 * 1 - Math.Abs(2 * (strength - .5f))),
-                    Math.Max((int)(255 * (1 - Math.Abs(2 * (strength - 1)))), 0)
-                );
-            } else {
-                return Color.Black;
+        static uint DrawPixel(float strength) {
+            if (float.IsNaN(strength)) {
+                return 0xFF000000;
             }
+
+            int r = Math.Max((int)(255 * (1 - Math.Abs(2 * strength))), 0);
+            int g = (int)(127 * 1 - Math.Abs(2 * (strength - .5f)));
+            int b = Math.Max((int)(255 * (1 - Math.Abs(2 * (strength - 1)))), 0);
+            return (uint)((r << 16) | (g << 8) | b | 0xFF000000);
         }
 
         void Render(object _, RoutedEventArgs e) {
@@ -175,16 +173,17 @@ namespace WavefrontSimulator {
             uniformityValue = 1 - (uniformityValue / (size * size * center));
             uniformity.Text = "Uniformity: " + uniformityValue.ToString("0.00%");
 
-            Bitmap output = new Bitmap(size, size);
+            uint[] argb = new uint[size * size];
             maxGain -= minGain;
             for (int x = 0; x < size; x++) {
                 for (int y = 0; y < size; y++) {
-                    float pxval = (gains[x, y] - minGain) / maxGain;
-                    output.SetPixel(x, size - y - 1, DrawPixel(pxval));
+                    float gain = (gains[x, y] - minGain) / maxGain;
+                    argb[y * size + x] = DrawPixel(gain);
                 }
             }
+            BitmapSource output = argb.ToBitmapSource(size, size);
             image.Tag = output;
-            image.Source = output.ToImageSource();
+            image.Source = output;
         }
 
         void ExportRender(object sender, RoutedEventArgs e) {
@@ -198,7 +197,10 @@ namespace WavefrontSimulator {
                 Filter = "Bitmap files (*.bmp)|*.bmp"
             };
             if (dialog.ShowDialog() == true) {
-                ((Bitmap)image.Tag).Save(dialog.FileName);
+                BitmapEncoder encoder = new BmpBitmapEncoder();
+                encoder.Frames.Add(BitmapFrame.Create((BitmapSource)image.Tag));
+                using FileStream stream = new(dialog.FileName, FileMode.Create);
+                encoder.Save(stream);
             }
         }
 

@@ -46,8 +46,8 @@ public class Crossover_Tests {
         CrossoverBase factory = CrossoverBase.Create(CrossoverType.Biquad, mixing, order, slope);
         BasicCrossover expected = new BasicCrossover(mixing, order, slope);
 
-        float[] factoryHigh = factory.GetHighpass(sampleRate, frequency, length);
-        float[] expectedHigh = expected.GetHighpass(sampleRate, frequency, length);
+        float[] factoryHigh = factory.GetHighpass(Listener.DefaultSampleRate, frequency, length);
+        float[] expectedHigh = expected.GetHighpass(Listener.DefaultSampleRate, frequency, length);
 
         TestUtils.AssertArrayEquals(expectedHigh, factoryHigh, 0);
     }
