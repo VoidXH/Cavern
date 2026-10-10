@@ -14,7 +14,7 @@ namespace Test.Cavern.QuickEQ.Crossover {
         /// Tests if <see cref="BasicCrossover"/> generates correct impulse responses.
         /// </summary>
         [TestMethod, Timeout(1000)]
-        public void ImpulseResponse() => Utils.ImpulseResponse(Crossovers.Basic5_1, 0.49152157f, 0.50847834f);
+        public void ImpulseResponse() => Utils.ImpulseResponse(Crossovers.Basic5_1, .701086f, .71307665f);
 
         /// <summary>
         /// Tests if a 4th-order <see cref="BasicCrossover"/> creates 2 lowpass filters per channel

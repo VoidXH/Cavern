@@ -280,18 +280,6 @@ namespace Cavern.QuickEQ.Sweeping {
         }
 
         /// <summary>
-        /// Get the frequency response of an external measurement that was performed with the current <see cref="sweepFFT"/>.
-        /// </summary>
-        public Complex[] GetFrequencyResponse(float[] samples, bool LFE) =>
-            Measurements.GetFrequencyResponse(LFE ? sweepFFTlow : sweepFFT, samples.FFT(sweepFFTCache));
-
-        /// <summary>
-        /// Get the impulse response of a frequency response generated with <see cref="GetFrequencyResponse(float[], bool)"/>.
-        /// </summary>
-        public VerboseImpulseResponse GetImpulseResponse(Complex[] frequencyResponse) =>
-            new VerboseImpulseResponse(Measurements.GetImpulseResponse(frequencyResponse, sweepFFTCache));
-
-        /// <summary>
         /// Prepare this sweeper for importing measurement data channel by channel with <see cref="OverwriteChannel(int, float[])"/>.
         /// </summary>
         public void OverwriteSweeper(int channels, int fftSize) {
@@ -309,9 +297,10 @@ namespace Cavern.QuickEQ.Sweeping {
         public void OverwriteChannel(int channel, float[] response) {
             ExcitementResponses[channel] = response;
             int lfeGetterChannels = ExcitementResponses.Length == SweepRuns ? -1 : ExcitementResponses.Length;
-            Complex[] RawResponse = GetFrequencyResponse(response, Cavern.Channel.IsLFE(channel, lfeGetterChannels));
-            FreqResponses[channel] = EQGenerator.FromTransferFunctionOptimized(RawResponse, sampleRate);
-            ImpResponses[channel] = GetImpulseResponse(RawResponse);
+            Complex[] fft = Cavern.Channel.IsLFE(channel, lfeGetterChannels) ? sweepFFTlow : sweepFFT;
+            SweeperBackgroundCalculator calculator = new SweeperBackgroundCalculator(fft, sweepFFTCache, response, sampleRate, FilterMains);
+            FreqResponses[channel] = calculator.FrequencyResponse;
+            ImpResponses[channel] = calculator.ImpulseResponse;
         }
 
         /// <summary>

@@ -21,7 +21,7 @@ namespace Test.Cavern.QuickEQ.Crossover {
             Complex[] high = crossover.GetHighpass(sampleRate, 80, cache.Size).FFT(cache),
                 low = crossover.GetLowpass(sampleRate, 80, cache.Size).FFT(cache);
             float freq = CrossoverAnalyzer.FindCrossoverFrequency(CrossoverType.Biquad, low, high, sampleRate, 40, 120, 10);
-            Assert.AreEqual(70, freq);
+            Assert.AreEqual(80, freq);
         }
     }
 }
