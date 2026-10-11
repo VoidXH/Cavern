@@ -84,6 +84,24 @@ namespace Cavern.Utilities {
         }
 
         /// <summary>
+        /// Round a <paramref name="value"/> to the nearest multiple of a <paramref name="step"/>.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static float RoundBy(float value, float step) => MathF.Round(value / step) * step;
+
+        /// <summary>
+        /// Round a <paramref name="value"/> to the nearest multiple of a <paramref name="step"/>.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static double RoundBy(double value, double step) => Math.Round(value / step) * step;
+
+        /// <summary>
+        /// Round a <paramref name="value"/> to the nearest multiple of a <paramref name="step"/> relative to an <paramref name="origin"/>.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static float RoundBy(float value, float origin, float step) => origin + (float)Math.Round((value - origin) / step) * step;
+
+        /// <summary>
         /// Round a floating point number to integer correctly.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -27,6 +27,12 @@ namespace Cavern.QuickEQ.Crossover {
         public float Precision { get; set; } = 10;
 
         /// <summary>
+        /// When not null, the minimum crossover frequency is the lowest point where the low and high outputs only differ below this many decibels.
+        /// Only use this for calibrated systems.
+        /// </summary>
+        public float? CalibrationTolerance { get; set; }
+
+        /// <summary>
         /// The type of crossover to use.
         /// </summary>
         public CrossoverType Type { get; protected set; }
@@ -70,35 +76,6 @@ namespace Cavern.QuickEQ.Crossover {
         }
 
         /// <summary>
-        /// Gets the optimal frequency to put the crossover point at for a single channel by simulation with custom order and slope.
-        /// </summary>
-        /// <param name="type">The type of crossover to use</param>
-        /// <param name="lowTransfer">Transfer function of the low-frequency path</param>
-        /// <param name="highTransfer">Transfer function of the high-frequency path</param>
-        /// <param name="sampleRate">Sample rate where the transfer functions were recorded</param>
-        /// <param name="minFreq">Minimum allowed crossover frequency</param>
-        /// <param name="maxFreq">Maximum allowed crossover frequency</param>
-        /// <param name="precision">Steps between checked crossover frequencies</param>
-        /// <param name="order">Filter order (must be even, 2 = 12 dB/octave). Only used for Biquad and SyntheticBiquad types.</param>
-        /// <param name="slope">Crossover slope type. Only used for Biquad and SyntheticBiquad types.</param>
-        /// <param name="cache">Preallocated FFT cache for optimization</param>
-        /// <remarks>This function doesn't account for the 10 dB gain of LFE channels as it could be used for determining the
-        /// crossover point of multiway speakers too.</remarks>
-        public static float FindCrossoverFrequency(CrossoverType type, Complex[] lowTransfer, Complex[] highTransfer, int sampleRate,
-            float minFreq, float maxFreq, float precision, int order, CrossoverSlope slope, FFTCache cache) {
-            float bestValue = float.NegativeInfinity;
-            float bestFrequency = minFreq;
-            for (float freq = minFreq; freq <= maxFreq; freq += precision) {
-                float value = Score(type, lowTransfer, highTransfer, sampleRate, freq, order, slope, cache);
-                if (bestValue < value) {
-                    bestValue = value;
-                    bestFrequency = freq;
-                }
-            }
-            return bestFrequency;
-        }
-
-        /// <summary>
         /// Find the lowest crossover point on a system by comparing all channels to each other and
         /// checking until what frequency they are similar.
         /// </summary>
@@ -124,7 +101,7 @@ namespace Cavern.QuickEQ.Crossover {
                 for (int j = 0; j < checkedFrom; j++) {
                     work[j] = work[checkedFrom]; // So smoothing won't cause issues
                 }
-                work = GraphUtils.SmoothUniform(work, Math.Max(reference.Length * 10 / sampleRate, 1));
+                work = GraphUtils.SmoothUniform(work, Math.Max(QMath.FrequencyToBin(10, sampleRate, reference.Length), 1));
                 float upperError = allowedError * work[checkedFrom],
                     lowerError = 1 / allowedError * work[checkedFrom];
                 for (int band = checkedFrom; band < minBand; band++) {
@@ -253,6 +230,27 @@ namespace Cavern.QuickEQ.Crossover {
         }
 
         /// <summary>
+        /// Gets the optimal frequency to put the crossover point at for a single channel by simulation.
+        /// </summary>
+        /// <param name="lowTransfer">Transfer function of the low-frequency path</param>
+        /// <param name="highTransfer">Transfer function of the high-frequency path</param>
+        /// <param name="cache">Preallocated FFT cache for optimization</param>
+        /// <remarks>This function doesn't account for the 10 dB gain of LFE channels as it could be used for determining the
+        /// crossover point of multiway speakers too.</remarks>
+        public float FindCrossoverFrequency(Complex[] lowTransfer, Complex[] highTransfer, FFTCache cache) {
+            float bestValue = float.NegativeInfinity;
+            float bestFrequency = CalibrationTolerance.HasValue ? GetAbsoluteMinimumFreq(lowTransfer, highTransfer, SampleRate) : MinFreq;
+            for (float freq = bestFrequency; freq <= MaxFreq; freq += Precision) {
+                float value = Score(Type, lowTransfer, highTransfer, SampleRate, freq, Order, Slope, cache);
+                if (bestValue < value) {
+                    bestValue = value;
+                    bestFrequency = freq;
+                }
+            }
+            return bestFrequency;
+        }
+
+        /// <summary>
         /// Gets the optimal frequencies to put the crossover point at for each channel by simulation.
         /// </summary>
         /// <param name="measurement">Measurements or simulations at the reference position</param>
@@ -287,11 +285,35 @@ namespace Cavern.QuickEQ.Crossover {
             Parallelizer.ForUnchecked(0, channels.Length, i => {
                 if (!channels[i].LFE) {
                     FFTCache cache = pool.Lease();
-                    result[i] = FindCrossoverFrequency(Type, subs, measurement[i], SampleRate, MinFreq, MaxFreq, Precision, Order, Slope, cache);
+                    result[i] = FindCrossoverFrequency(subs, measurement[i], cache);
                     pool.Return(cache);
                 }
             });
             return result;
+        }
+
+        /// <summary>
+        /// Get the frequency below which the crossover cannot be set because of severe gain loss.
+        /// </summary>
+        /// <param name="lowTransfer">Transfer function of the low-frequency path</param>
+        /// <param name="highTransfer">Transfer function of the high-frequency path</param>
+        /// <param name="sampleRate">Sample rate where the transfer functions were recorded</param>
+        float GetAbsoluteMinimumFreq(Complex[] lowTransfer, Complex[] highTransfer, int sampleRate) {
+            float toleranceDb = CalibrationTolerance.Value;
+            int maxBin = QMath.FrequencyToBin(MaxFreq, sampleRate, lowTransfer.Length);
+            int minBin = QMath.FrequencyToBin(MinFreq, sampleRate, lowTransfer.Length);
+
+            for (int bin = maxBin; bin >= minBin; bin--) {
+                float highMagnitude = highTransfer[bin].Magnitude;
+                if (highMagnitude > 0) {
+                    float dbDiff = MathF.Abs(QMath.GainToDb(lowTransfer[bin].Magnitude / highMagnitude));
+                    if (dbDiff > toleranceDb) {
+                        float freq = bin / (float)lowTransfer.Length * sampleRate;
+                        return QMath.RoundBy(freq, MinFreq, Precision);
+                    }
+                }
+            }
+            return MinFreq;
         }
     }
 }

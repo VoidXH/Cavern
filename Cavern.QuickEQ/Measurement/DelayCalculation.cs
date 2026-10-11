@@ -149,7 +149,7 @@ namespace Cavern.QuickEQ.Measurement {
         public static float GetSlopeDelay(Complex[] transferFunction, int endFreq, int sampleRate) {
             float[] result = Measurements.GetPhase(transferFunction);
             Measurements.UnwrapPhase(result);
-            (double slope, double _) = GraphUtils.GetRegression(result, 0, (int)(transferFunction.LongLength * endFreq / sampleRate));
+            (double slope, double _) = GraphUtils.GetRegression(result, 0, QMath.FrequencyToBin(endFreq, sampleRate, (int)transferFunction.LongLength));
             double delaySamples = -slope * transferFunction.Length / (2 * Math.PI);
             return (float)(delaySamples < 0 ? transferFunction.Length + delaySamples : delaySamples);
         }

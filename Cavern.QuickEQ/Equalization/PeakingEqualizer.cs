@@ -196,7 +196,7 @@ namespace Cavern.QuickEQ.Equalization {
                 double freq = firstBand * Math.Pow(2, i * bandwidth);
                 if (roundFrequencies) {
                     int magnitude = (int)Math.Pow(10, Math.Floor(Math.Log10(freq)) - 1);
-                    freq = Math.Round(freq / magnitude) * magnitude;
+                    freq = QMath.RoundBy(freq, magnitude);
                 }
 
                 double freqOverride;

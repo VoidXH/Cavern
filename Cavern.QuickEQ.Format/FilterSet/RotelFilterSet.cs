@@ -4,6 +4,7 @@ using System.IO;
 using Cavern.Channels;
 using Cavern.Filters;
 using Cavern.Format.FilterSet.Enums;
+using Cavern.Utilities;
 
 namespace Cavern.Format.FilterSet {
     /// <summary>
@@ -47,9 +48,9 @@ namespace Cavern.Format.FilterSet {
             if (filter.CenterFreq < 100) {
                 filter.CenterFreq = Math.Round(filter.CenterFreq);
             } else if (filter.CenterFreq < 2000) {
-                filter.CenterFreq = Math.Round(filter.CenterFreq / 10) * 10;
+                filter.CenterFreq = (float)QMath.RoundBy(filter.CenterFreq, 10);
             } else {
-                filter.CenterFreq = Math.Round(filter.CenterFreq   / 100) * 100;
+                filter.CenterFreq = (float)QMath.RoundBy(filter.CenterFreq, 100);
             }
         }
 

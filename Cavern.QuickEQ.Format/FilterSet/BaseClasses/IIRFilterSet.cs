@@ -2,6 +2,7 @@
 
 using Cavern.Channels;
 using Cavern.Filters;
+using Cavern.Utilities;
 using Cavern.Waveforms;
 
 namespace Cavern.Format.FilterSet {
@@ -180,7 +181,7 @@ namespace Cavern.Format.FilterSet {
         /// <remarks>A snapped Q must stay strictly positive, as a Q of 0 produces a degenerate biquad
         /// (division by zero in the coefficient calculation), which yields NaN responses.</remarks>
         public virtual double SnapQ(double q) {
-            double snapped = Math.Round(q / QPrecision) * QPrecision;
+            double snapped = QMath.RoundBy(q, QPrecision);
             return snapped > 0 ? snapped : QPrecision;
         }
     }

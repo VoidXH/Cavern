@@ -5,6 +5,26 @@ using System.Runtime.CompilerServices;
 namespace Cavern.Utilities {
     partial class QMath {
         /// <summary>
+        /// Convert an FFT bin index to the corresponding frequency in Hz.
+        /// </summary>
+        /// <param name="bin">FFT bin index.</param>
+        /// <param name="sampleRate">Sample rate of the signal.</param>
+        /// <param name="fftSize">Size of the FFT.</param>
+        /// <returns>The frequency in Hz corresponding to the given bin index.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static double BinToFrequency(int bin, int sampleRate, int fftSize) => bin * sampleRate / (double)fftSize;
+
+        /// <summary>
+        /// Convert a frequency in Hz to the corresponding FFT bin index.
+        /// </summary>
+        /// <param name="frequency">Frequency in Hz.</param>
+        /// <param name="sampleRate">Sample rate of the signal.</param>
+        /// <param name="fftSize">Size of the FFT.</param>
+        /// <returns>The FFT bin index corresponding to the given frequency.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int FrequencyToBin(double frequency, int sampleRate, int fftSize) => (int)(fftSize * frequency / sampleRate);
+
+        /// <summary>
         /// Unclamped linear interpolation.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

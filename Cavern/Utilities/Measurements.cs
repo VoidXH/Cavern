@@ -299,8 +299,8 @@ namespace Cavern.Utilities {
         /// Add gain to every frequency except a given band.
         /// </summary>
         public static void OffbandGain(Complex[] samples, double startFreq, double endFreq, double sampleRate, double dBgain) {
-            int startPos = (int)(samples.Length * startFreq / sampleRate),
-                endPos = (int)(samples.Length * endFreq / sampleRate);
+            int startPos = QMath.FrequencyToBin(startFreq, (int)sampleRate, samples.Length);
+            int endPos = QMath.FrequencyToBin(endFreq, (int)sampleRate, samples.Length);
             float gain = (float)QMath.DbToGain(dBgain);
             samples[0] *= gain;
             for (int i = 1; i < startPos; i++) {

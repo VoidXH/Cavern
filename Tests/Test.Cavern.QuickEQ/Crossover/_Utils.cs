@@ -10,8 +10,8 @@ namespace Test.Cavern.QuickEQ.Crossover {
         public static void ImpulseResponse(CrossoverBase crossover, float expectedHighpassValue, float expectedLowpassValue) {
             const int fftSize = 256,
                 sampleRate = 48000,
-                crossoverFreq = 10000,
-                crossoverBand = fftSize * crossoverFreq / sampleRate;
+                crossoverFreq = 10000;
+            int crossoverBand = QMath.FrequencyToBin(crossoverFreq, sampleRate, fftSize);
             FFTCache cache = new(fftSize);
             Complex[] highpass = crossover.GetHighpass(sampleRate, crossoverFreq, fftSize).FFT(cache);
             Complex[] lowpass = crossover.GetLowpass(sampleRate, crossoverFreq, fftSize).FFT(cache);
