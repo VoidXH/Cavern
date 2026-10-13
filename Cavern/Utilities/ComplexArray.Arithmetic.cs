@@ -1,5 +1,4 @@
 using System;
-using System.Runtime.CompilerServices;
 
 namespace Cavern.Utilities {
     public static partial class ComplexArray {

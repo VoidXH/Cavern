@@ -94,9 +94,7 @@ namespace Cavern.Filters {
             }
 
             // Perform the convolution
-            present.InPlaceFFT(cache);
-            present.Convolve(filter);
-            present.InPlaceIFFT(cache);
+            present.ConvolveInPlace(filter, cache);
 
             // Append the result to the future
             for (int i = 0; i < present.Length; i++) {

@@ -39,6 +39,23 @@ namespace Cavern.Utilities {
         }
 
         /// <summary>
+        /// Perform FFT, convolve with <paramref name="filter"/>, then IFFT in-place.
+        /// </summary>
+        /// <remarks>Requires <paramref name="source"/> and <paramref name="filter"/> to be the same length (power of 2).</remarks>
+        public static void ConvolveInPlace(this Complex[] source, Complex[] filter, FFTCache cache) {
+            source.ThrowIfNullOrEmpty(nameof(source));
+            filter.ThrowIfNullOrEmpty(nameof(filter));
+            cache.ThrowIfNull(nameof(cache));
+            if (source.Length != filter.Length) {
+                throw new ArgumentException("Arrays must be of the same length.");
+            }
+
+            source.InPlaceFFT(cache);
+            source.Convolve(filter);
+            source.InPlaceIFFT(cache);
+        }
+
+        /// <summary>
         /// Replace the <paramref name="source"/> with its convolution with an <paramref name="other"/> array.
         /// </summary>
         public static unsafe void Convolve(this Complex[] source, Complex[] other) {

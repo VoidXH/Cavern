@@ -341,9 +341,7 @@ namespace Cavern.Filters {
             }
 
             // Perform the convolution
-            present.InPlaceFFT(cache);
-            present.Convolve(filter);
-            present.InPlaceIFFT(cache);
+            present.ConvolveInPlace(filter, cache);
 
             // Append the result to the future
             fixed (Complex* pPresent = present)

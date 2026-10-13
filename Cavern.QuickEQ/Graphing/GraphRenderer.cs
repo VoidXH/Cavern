@@ -68,6 +68,11 @@ namespace Cavern.QuickEQ.Graphing {
         float padding;
 
         /// <summary>
+        /// Draw the curves in reverse order, so the earlier curves are shown on top.
+        /// </summary>
+        public bool ReverseOrder { get; set; } = true;
+
+        /// <summary>
         /// List of displayed curves in overdrawing order.
         /// </summary>
         protected IReadOnlyList<RenderedCurve> Curves => curves;
@@ -173,8 +178,14 @@ namespace Cavern.QuickEQ.Graphing {
         internal void DrawAll() {
             Array.Clear(Pixels, 0, Pixels.Length);
             Overlay?.DrawBehind(this);
-            for (int i = 0, c = curves.Count; i < c; i++) {
-                curves[i].DrawOver(this, 0, 0);
+            if (ReverseOrder) {
+                for (int i = curves.Count - 1; i >= 0; i--) {
+                    curves[i].DrawOver(this, 0, 0);
+                }
+            } else {
+                for (int i = 0, c = curves.Count; i < c; i++) {
+                    curves[i].DrawOver(this, 0, 0);
+                }
             }
             Overlay?.DrawOn(this);
         }

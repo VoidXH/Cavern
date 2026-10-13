@@ -14,7 +14,7 @@ namespace Test.Cavern.QuickEQ.Format.FilterSet;
 /// Tests for the <see cref="MultEQXFilterSet"/> class.
 /// </summary>
 [TestClass]
-public class MultEQXFilterSet_Tests {
+public class MultEQXIIRFilterSet_Tests {
     /// <summary>
     /// Tests if all the fields of a MultEQ-X file are present in the exported JSON, taking a true export as a reference.
     /// </summary>
@@ -23,7 +23,7 @@ public class MultEQXFilterSet_Tests {
         string path = Path.Combine(Constants.testData, "Configurations", "MultEQ-X Marantz AV7706.mqx");
         JsonFile reference = new JsonFile(File.ReadAllText(path));
 
-        MultEQXFilterSet set = MultEQXFilterSet.FromFile(path);
+        MultEQXIIRFilterSet set = MultEQXIIRFilterSet.FromFile(path);
         BiquadFilter[] bypass = [];
         for (int i = 0; i < set.ChannelCount; i++) {
             set.SetupChannel(i, bypass); // No EQ
@@ -85,7 +85,7 @@ public class MultEQXFilterSet_Tests {
     /// </summary>
     [TestMethod, Timeout(2000)]
     public void ExportFullFileFromScratch() {
-        MultEQXFilterSet set = new([ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight], 48000);
+        MultEQXIIRFilterSet set = new([ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight], 48000);
         set.SetupChannel(0, [new PeakingEQ(48000, 1000, -3, 1.41)]);
         set.SetupChannel(1, [new HighShelf(48000, 10000, 2, 0.71)]);
 

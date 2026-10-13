@@ -157,6 +157,10 @@ namespace Cavern.Format.FilterSet {
         /// </summary>
         MultEQX,
         /// <summary>
+        /// Processors supporting Audyssey MultEQ-X, MultEQ-X config file with peaking EQ filters.
+        /// </summary>
+        MultEQXIIR,
+        /// <summary>
         /// Processors supporting Audyssey MultEQ-X, PEQ files.
         /// </summary>
         MultEQXRaw,
