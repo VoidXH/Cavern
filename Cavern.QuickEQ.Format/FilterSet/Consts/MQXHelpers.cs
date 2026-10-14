@@ -37,8 +37,16 @@ namespace Cavern.Format.FilterSet.Consts {
         public static JsonFile CreateChannelDataMap(string[] guids, ChannelData[] channels, bool[] polarities, double[] gains, double[] delays) {
             JsonFile result = new JsonFile();
             for (int channel = 0; channel < guids.Length; channel++) {
-                (ReferenceChannel channel, string designation, string name, string pairDesignation, string pair, string location) label =
-                    MQXConsts.labeling.FirstOrDefault(x => x.channel == channels[channel].reference);
+                (ReferenceChannel channel, string designation, string name, string pairDesignation, string pair, string location) label;
+                if (!string.IsNullOrEmpty(channels[channel].name)) {
+                    label = MQXConsts.labeling.FirstOrDefault(x => x.name == channels[channel].name);
+                    if (label.designation == null) {
+                        label = MQXConsts.labeling.FirstOrDefault(x => x.channel == channels[channel].reference);
+                    }
+                }
+                else {
+                    label = MQXConsts.labeling.FirstOrDefault(x => x.channel == channels[channel].reference);
+                }
                 if (label.designation == null) {
                     throw new IOException("A channel that's part of the exported configuration is unsupported by MultEQ-X.");
                 }
@@ -142,8 +150,11 @@ namespace Cavern.Format.FilterSet.Consts {
             Dictionary<string, (string displayName, ReferenceChannel reference)> result = new Dictionary<string, (string, ReferenceChannel)>();
             foreach (KeyValuePair<string, object> channel in mapping) {
                 JsonFile metadata = (JsonFile)((JsonFile)channel.Value)[metadataKey];
-                ReferenceChannel reference = DesignationToChannel((string)metadata[designationKey]);
                 string displayName = (string)metadata[displayNameKey];
+                ReferenceChannel reference = DisplayNameToChannel(displayName);
+                if (reference == ReferenceChannel.Unknown) {
+                    reference = DesignationToChannel((string)metadata[designationKey]);
+                }
                 result[channel.Key] = (displayName, reference);
             }
             return result;
