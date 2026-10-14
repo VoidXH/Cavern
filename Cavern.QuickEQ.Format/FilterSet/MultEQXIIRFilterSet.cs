@@ -1,13 +1,12 @@
-using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 
 using Cavern.Channels;
 using Cavern.Filters;
 using Cavern.Format.Exceptions;
 using Cavern.Format.FilterSet.Consts;
 using Cavern.Format.JSON;
+using Cavern.Utilities;
 
 namespace Cavern.Format.FilterSet {
     /// <summary>
@@ -39,10 +38,7 @@ namespace Cavern.Format.FilterSet {
         /// </summary>
         public MultEQXIIRFilterSet(int channels, int sampleRate) : base(channels, sampleRate) {
             Valid = true;
-            guids = new string[channels];
-            for (int i = 0; i < channels; i++) {
-                guids[i] = Guid.NewGuid().ToString();
-            }
+            guids = MQXHelpers.GenerateGuids(channels);
         }
 
         /// <summary>
@@ -50,9 +46,23 @@ namespace Cavern.Format.FilterSet {
         /// </summary>
         public MultEQXIIRFilterSet(ReferenceChannel[] channels, int sampleRate) : base(channels, sampleRate) {
             Valid = true;
-            guids = new string[channels.Length];
-            for (int i = 0; i < guids.Length; i++) {
-                guids[i] = Guid.NewGuid().ToString();
+            guids = MQXHelpers.GenerateGuids(channels.Length);
+        }
+
+        /// <summary>
+        /// Create a MultEQ-X configuration file for EQ export from fully spelled out channel names.
+        /// </summary>
+        /// <param name="channelNames">Display names resolved from the MQX file's DisplayName field</param>
+        /// <param name="sampleRate">Target sample rate</param>
+        public MultEQXIIRFilterSet(string[] channelNames, int sampleRate) : base(MQXHelpers.GetReferenceChannels(channelNames), sampleRate) {
+            Valid = true;
+            guids = MQXHelpers.GenerateGuids(channelNames.Length);
+            if (channelNames != null) {
+                for (int i = 0; i < Channels.Length; i++) {
+                    if (!string.IsNullOrEmpty(channelNames[i])) {
+                        ((IIRChannelData)Channels[i]).name = channelNames[i];
+                    }
+                }
             }
         }
 
@@ -85,25 +95,16 @@ namespace Cavern.Format.FilterSet {
         /// Load a MultEQ-X configuration from a parsed JSON file for editing with a target sample rate.
         /// </summary>
         public static MultEQXIIRFilterSet FromJson(JsonFile json, int sampleRate) {
-            Dictionary<string, ReferenceChannel> channelMapping = MQXHelpers.GetChannelMapping(json);
-            if (channelMapping == null || !json.ContainsKey(channelListKey)) {
-                throw new CorruptionException("channel list");
-            }
+            (string guid, string name, ReferenceChannel reference)[] channels = MQXHelpers.GetOrderedChannels(json);
 
-            object[] orderedGuids = (object[])json[channelListKey];
-            string[] sourceGuids = new string[orderedGuids.Length];
-            ReferenceChannel[] channels = new ReferenceChannel[orderedGuids.Length];
-            for (int i = 0; i < orderedGuids.Length; i++) {
-                string guid = (string)orderedGuids[i];
-                sourceGuids[i] = guid;
-                if (!channelMapping.TryGetValue(guid, out channels[i])) {
-                    channels[i] = ReferenceChannel.Unknown;
-                }
-            }
-
-            return new MultEQXIIRFilterSet(channels, sampleRate) {
-                guids = sourceGuids
+            MultEQXIIRFilterSet result = new MultEQXIIRFilterSet(channels.SelectArray(x => x.name), sampleRate) {
+                guids = channels.SelectArray(x => x.guid)
             };
+            for (int i = 0; i < result.Channels.Length; i++) {
+                result.Channels[i].name = channels[i].name ?? channels[i].ToString();
+                result.Channels[i].reference = channels[i].reference;
+            }
+            return result;
         }
 
         /// <summary>
@@ -141,50 +142,7 @@ namespace Cavern.Format.FilterSet {
                 throw new InvalidSourceException();
             }
 
-            double[] gains = GetGains(-12, 12);
-            double[] delays = GetDelays(20);
-
-            JsonFile channelDataMap = new JsonFile();
-            for (int channel = 0; channel < guids.Length; channel++) {
-                IIRChannelData channelRef = (IIRChannelData)Channels[channel];
-                (ReferenceChannel channel, string designation, string name, string pairDesignation, string pair, string location) label =
-                    MQXConsts.labeling.FirstOrDefault(x => x.channel == channelRef.reference);
-                if (label.designation == null) {
-                    throw new IOException("A channel that's part of the exported configuration is unsupported by MultEQ-X.");
-                }
-
-                channelDataMap[guids[channel]] = new JsonFile {
-                    {
-                        "Metadata", new JsonFile {
-                            { "AvrOriginatingDesignation", label.designation },
-                            { "DisplayName", label.name },
-                            { "PairDesignation", label.pairDesignation },
-                            { "PairDisplayName", label.pair },
-                            { "Location", label.location }
-                        }
-                    },
-                    {
-                        "Calibration", new JsonFile {
-                            { "IsEnabled", true },
-                            { "Trim", gains[channel] },
-                            { "DistanceMilliseconds", delays[channel] },
-                            { "PolarityError", channelRef.switchPolarity },
-                            { "SpeakerSize", "Small" },
-                            { "CrossoverFrequency", channelRef.crossoverFrequency ?? 80 }
-                        }
-                    },
-                    {
-                        "TargetCurveCutoff", new JsonFile {
-                            { "Mode", channelRef.reference == ReferenceChannel.ScreenLFE ? "Disabled" : "Auto" }
-                        }
-                    }
-                };
-            }
-
-            object[] orderedGuids = new object[guids.Length];
-            for (int i = 0; i < guids.Length; i++) {
-                orderedGuids[i] = guids[i];
-            }
+            JsonFile channelDataMap = CreateChannelDataMap();
 
             List<object> targetCurves = new List<object>();
             for (int channel = 0; channel < guids.Length; channel++) {
@@ -212,20 +170,18 @@ namespace Cavern.Format.FilterSet {
                 }
             }
 
-            return new JsonFile {
-                { "_measurements", Array.Empty<object>() },
-                { MQXConsts.channelMappingKey, channelDataMap },
-                { channelListKey, orderedGuids },
-                { "CalibrationSettings", new JsonFile {
-                    { "AutoTrims", false },
-                    { "AutoDistance", false },
-                    { "AutoEnable", false },
-                    { "AutoBassManagement", false }
-                } },
-                { "TargetCurveSet", targetCurves.ToArray() },
-                { "PositionNames", new JsonFile() },
-                { "UsedLocalMicrophones", new JsonFile() }
-            }.ToString();
+            return MQXHelpers.CreateConfiguration(channelDataMap, guids, targetCurves.ToArray()).ToString();
+        }
+
+        /// <summary>
+        /// Build the per-channel data map element of the exported MQX document.
+        /// </summary>
+        JsonFile CreateChannelDataMap() {
+            bool[] polarities = new bool[Channels.Length];
+            for (int i = 0; i < Channels.Length; i++) {
+                polarities[i] = ((IIRChannelData)Channels[i]).switchPolarity;
+            }
+            return MQXHelpers.CreateChannelDataMap(guids, Channels, polarities, GetGains(-12, 12), GetDelays(20));
         }
 
         /// <summary>
@@ -252,11 +208,6 @@ namespace Cavern.Format.FilterSet {
         /// Filter type ID of a peaking EQ.
         /// </summary>
         const int peakingEQType = 19;
-
-        /// <summary>
-        /// JSON tag for the list of channels.
-        /// </summary>
-        const string channelListKey = "OrderedChannelGuids";
 
         /// <summary>
         /// Assembly-qualified type name for biquad filter items in MultEQ-X.
