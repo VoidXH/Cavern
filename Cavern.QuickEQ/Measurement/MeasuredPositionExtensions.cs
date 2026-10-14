@@ -37,9 +37,10 @@ namespace Cavern.QuickEQ.Measurement {
                 float[][] target = new float[source.Length][];
                 Parallelizer.For(0, source.Length, j => {
                     FFTCache channelCache = pool.Lease();
-                    source[j].ConvolveInPlace(referenceFFT, channelCache);
+                    Complex[] working = source[j].FastClone();
+                    working.ConvolveInPlace(referenceFFT, channelCache);
                     pool.Return(channelCache);
-                    target[j] = Measurements.GetRealPart(source[j]);
+                    target[j] = Measurements.GetRealPart(working);
                 }, multithreading);
                 result[i] = new MultichannelWaveform(target);
             }

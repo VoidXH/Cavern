@@ -65,8 +65,9 @@ namespace Cavern.QuickEQ.EQCurves {
 
             if (typeName == nameof(AutoRoomCurve) || typeName == nameof(RoomCurve) || typeName == nameof(RoomCurveLikeCurve)) {
                 string[] roomParts = curveData.Split('|');
-                if (roomParts.Length == 2 && float.TryParse(roomParts[0], out float treble) && float.TryParse(roomParts[1], out float rise)) {
-                    return new RoomCurveLikeCurve(RoomCurveLikeCurve.defaultKnee, rise) { trebleSuppression = treble };
+                if (roomParts.Length >= 2 && float.TryParse(roomParts[0], out float treble) && float.TryParse(roomParts[1], out float rise)) {
+                    double bassPeakAt = roomParts.Length >= 3 && double.TryParse(roomParts[2], out double bassPeak) ? bassPeak : 20;
+                    return new RoomCurveLikeCurve(RoomCurveLikeCurve.defaultKnee, rise, bassPeakAt) { trebleSuppression = treble };
                 }
             }
             throw new FormatException("Invalid curve data.");
