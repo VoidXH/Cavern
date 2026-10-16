@@ -32,7 +32,7 @@ namespace Test.Cavern.QuickEQ {
             measurementSignal[10] = 1.0f;
 
             // Act: call GetExcitements
-            measurements.GetExcitements(0, measurementSignal, multithreading: false);
+            measurements.GetExcitements(0, measurementSignal, multithreaded: false);
 
             // Assert: verify the original ComplexResponse array was not modified
             for (int i = 0; i < originalComplex.Length; i++) {
@@ -64,7 +64,7 @@ namespace Test.Cavern.QuickEQ {
             measurementSignal[10] = 1.0f;
 
             // Act
-            measurements.GetExcitements(0, measurementSignal, multithreading: true);
+            measurements.GetExcitements(0, measurementSignal, multithreaded: true);
 
             // Assert
             for (int i = 0; i < originalComplex.Length; i++) {
@@ -107,7 +107,7 @@ namespace Test.Cavern.QuickEQ {
             measurementSignal[10] = 1.0f;
 
             // Act
-            measurements.GetExcitements(0, measurementSignal, multithreading: false);
+            measurements.GetExcitements(0, measurementSignal, multithreaded: false);
 
             // Assert
             for (int p = 0; p < positionCount; p++) {

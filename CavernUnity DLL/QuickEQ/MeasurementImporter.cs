@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
-
+using Cavern.Format.FilterSet.Measurements;
 using Cavern.QuickEQ.Sweeping;
 using Cavern.Waveforms;
 
@@ -249,24 +249,7 @@ namespace Cavern.QuickEQ {
         /// Process a QuickEQ export, simply import the recorded data.
         /// </summary>
         void ProcessExport() {
-            Channels = 0;
-            int lastSample = data[0].Length - 1;
-            while (data[0][lastSample] == 0 && lastSample > 0) {
-                lastSample--;
-            }
-            for (int channel = 1; channel < data.Channels; channel++) {
-                int firstSample = 0;
-                while (data[channel][firstSample] == 0 && firstSample < lastSample) {
-                    firstSample++;
-                }
-                if (firstSample < lastSample) {
-                    Channels = channel;
-                    break;
-                }
-            }
-            if (Channels == 0) {
-                Channels = data.Channels;
-            }
+            Channels = LAFMeasurement.GetChannelCount(data);
             if (Channels != data.Channels) {
                 MultiMeasurement = true;
             }

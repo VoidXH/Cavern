@@ -45,11 +45,11 @@ namespace Cavern.Utilities.Threading {
 
         /// <summary>
         /// Performs the <paramref name="action"/> for all values between <paramref name="start"/> (inclusive) and
-        /// <paramref name="end"/> (exclusive) in <paramref name="parallel"/> if that's chosen, while blocking the calling thread.
+        /// <paramref name="end"/> (exclusive) in <paramref name="multithreaded"/> if that's chosen, while blocking the calling thread.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void For(int start, int end, Action<int> action, bool parallel) {
-            if (parallel) {
+        public static void For(int start, int end, Action<int> action, bool multithreaded) {
+            if (multithreaded) {
                 For(start, end, action);
             } else {
                 while (start < end) {
@@ -71,12 +71,12 @@ namespace Cavern.Utilities.Threading {
 
         /// <summary>
         /// Performs the <paramref name="action"/> for all values between <paramref name="start"/> (inclusive) and
-        /// <paramref name="end"/> (exclusive) in <paramref name="parallel"/> if that's chosen, while blocking the calling thread.
+        /// <paramref name="end"/> (exclusive) in <paramref name="multithreaded"/> if that's chosen, while blocking the calling thread.
         /// This function gets a deadlock on exceptions, but has better performance when the <paramref name="action"/> can't throw any exceptions.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void ForUnchecked(int start, int end, Action<int> action, bool parallel) {
-            if (parallel) {
+        public static void ForUnchecked(int start, int end, Action<int> action, bool multithreaded) {
+            if (multithreaded) {
                 ForUnchecked(start, end, action);
             } else {
                 while (start < end) {

@@ -1,44 +1,62 @@
 using System.Collections.Generic;
 using System.IO;
-
+using System.Linq;
+using System.Runtime.CompilerServices;
 using Cavern.Channels;
 using Cavern.Format.FilterSet.Consts;
 using Cavern.Format.JSON;
-using Cavern.QuickEQ;
-using Cavern.QuickEQ.Equalization;
 using Cavern.QuickEQ.Measurement;
 using Cavern.Utilities;
-using Cavern.Utilities.Threading;
+using Cavern.Waveforms;
 
 namespace Cavern.Format.FilterSet.Measurements {
     /// <summary>
     /// Represents a MultEQ-X measurement file containing impulse responses for multiple channels.
     /// </summary>
-    public class MQXMeasurement {
+    public sealed class MQXMeasurement : Measurement {
         /// <summary>
-        /// Sample rate of the measurement data.
+        /// Represents a MultEQ-X measurement file containing impulse responses for multiple channels.
         /// </summary>
-        public int SampleRate { get; } = 48000;
+        public MQXMeasurement() { }
 
         /// <summary>
-        /// Measurements grouped by microphone position, in the order the positions appear in the file.
+        /// Import a MultEQ-X measurement file containing impulse responses for multiple channels.
         /// </summary>
-        public MeasuredPosition[] Positions { get; private set; }
+        public MQXMeasurement(string path) => FromFile(path, true);
+
+        /// <summary>
+        /// Import a MultEQ-X measurement file containing impulse responses for multiple channels.
+        /// </summary>
+        public MQXMeasurement(string path, bool multithreaded) => FromFile(path, multithreaded);
 
         /// <summary>
         /// Import an MQX measurement file.
         /// </summary>
-        public void FromFile(string path) => ParseMQX(new JsonFile(File.ReadAllText(path)));
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void FromFile(string path) => ParseMQX(new JsonFile(File.ReadAllText(path)), true);
+
+        /// <summary>
+        /// Import an MQX measurement file.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void FromFile(string path, bool multithreaded) => ParseMQX(new JsonFile(File.ReadAllText(path)), multithreaded);
 
         /// <summary>
         /// Import an MQX measurement from a string.
         /// </summary>
-        public void FromString(string jsonContent) => ParseMQX(new JsonFile(jsonContent));
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void FromString(string jsonContent) => ParseMQX(new JsonFile(jsonContent), true);
+
+        /// <summary>
+        /// Import an MQX measurement from a string.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void FromString(string jsonContent, bool multithreaded) => ParseMQX(new JsonFile(jsonContent), multithreaded);
 
         /// <summary>
         /// Parse MQX <paramref name="json"/> into <see cref="MeasuredPosition"/>s.
         /// </summary>
-        void ParseMQX(JsonFile json) {
+        void ParseMQX(JsonFile json, bool multithreaded) {
             Dictionary<string, ReferenceChannel> channelMapping = MQXHelpers.GetChannelMapping(json);
 
             const string measurementsKey = "_measurements";
@@ -61,20 +79,22 @@ namespace Cavern.Format.FilterSet.Measurements {
                 parsed[positionGuid].Add((channelMapping[channelGuid], impulseResponse));
             }
 
-            Positions = parsed.SelectArray((x, mic) => {
-                x.Value.Sort();
-                FFTCachePool pool = new FFTCachePool(x.Value[0].impulseResponse.Length);
-                Equalizer[] frequencyResponses = new Equalizer[x.Value.Count];
-                VerboseImpulseResponse[] impulseResponses = new VerboseImpulseResponse[x.Value.Count];
-                Parallelizer.For(0, x.Value.Count, i => {
-                    FFTCache cache = pool.Lease();
-                    Complex[] transferFunction = x.Value[i].impulseResponse.FFT(cache);
-                    pool.Return(cache);
-                    frequencyResponses[i] = EQGenerator.FromTransferFunctionOptimized(transferFunction, SampleRate);
-                    impulseResponses[i] = new VerboseImpulseResponse(x.Value[i].impulseResponse);
+            SampleRate = 48000;
+
+            int cacheSize = parsed.First().Value[0].impulseResponse.Length;
+            if (multithreaded) {
+                FFTCachePool pool = new FFTCachePool(cacheSize);
+                Positions = parsed.SelectArray((x, mic) => {
+                    x.Value.Sort();
+                    return new MeasuredPosition(mic, new MultichannelWaveform(x.Value.SelectArray(x => x.impulseResponse)), SampleRate, pool);
                 });
-                return new MeasuredPosition(mic, frequencyResponses, impulseResponses);
-            });
+            } else {
+                FFTCache cache = new FFTCache(cacheSize);
+                Positions = parsed.SelectArray((x, mic) => {
+                    x.Value.Sort();
+                    return new MeasuredPosition(mic, new MultichannelWaveform(x.Value.SelectArray(x => x.impulseResponse)), SampleRate, cache);
+                });
+            }
         }
     }
 }

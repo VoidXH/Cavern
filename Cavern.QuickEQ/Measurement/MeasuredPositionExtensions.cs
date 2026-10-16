@@ -16,10 +16,10 @@ namespace Cavern.QuickEQ.Measurement {
         /// <param name="measurements">The recorded measurements</param>
         /// <param name="reference">Index of the reference measurement in <paramref name="measurements"/></param>
         /// <param name="measurementSignal">The measurement signal used for recording</param>
-        /// <param name="multithreading">Whether to use multiple threads</param>
+        /// <param name="multithreaded">Whether to use multiple threads</param>
         /// <exception cref="DifferentSignalLengthsException">The measurement signal's length doesn't equal the length of recorded measurements.</exception>
         public static MultichannelWaveform[] GetExcitements(this IReadOnlyList<MeasuredPosition> measurements, int reference, float[] measurementSignal,
-            bool multithreading) {
+            bool multithreaded) {
             FFTCachePool pool = new FFTCachePool(measurementSignal.Length);
             FFTCache cache = pool.Lease();
             Complex[] referenceFFT = Measurements.FFT(measurementSignal, cache);
@@ -41,7 +41,7 @@ namespace Cavern.QuickEQ.Measurement {
                     working.ConvolveInPlace(referenceFFT, channelCache);
                     pool.Return(channelCache);
                     target[j] = Measurements.GetRealPart(working);
-                }, multithreading);
+                }, multithreaded);
                 result[i] = new MultichannelWaveform(target);
             }
             return result;
