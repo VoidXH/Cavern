@@ -84,8 +84,7 @@ namespace Cavern.QuickEQ.Graphing {
                     xPadding = channels[i].CubicalPos.X * relativePadding + .5f;
                     yPadding = channels[i].CubicalPos.Z * relativePadding + .5f;
                 }
-                Rectangle position = new Rectangle((int)(workingWidth * xPadding), (int)(workingHeight * yPadding), ChannelWidth, ChannelWidth);
-                DrawingUtils.AddRectangle(image, Width, position, ChannelColor);
+                image.AddRectangleSafe(Width, new Rectangle((int)(workingWidth * xPadding), (int)(workingHeight * yPadding), ChannelWidth, ChannelWidth), ChannelColor);
             }
 
             return image;
@@ -95,18 +94,14 @@ namespace Cavern.QuickEQ.Graphing {
         /// Draws a rectangle which hosts all the channels on that elevation.
         /// </summary>
         void DrawConnection(uint[] image, float elevation) {
-            float relativePadding = MathF.Abs(elevation) * (1f / (90 * 2));
-            int extraPadding = (ChannelWidth >> 1) - (ConnectionWidth >> 1),
-                hPadding = (int)((Width - (extraPadding << 1)) * relativePadding) + extraPadding,
-                vPadding = (int)((Height - (extraPadding << 1)) * relativePadding) + extraPadding;
-            DrawingUtils.AddRectangle(image, Width, // Left
-                new Rectangle(hPadding, vPadding, ConnectionWidth, Height - (vPadding << 1)), ConnectionColor);
-            DrawingUtils.AddRectangle(image, Width, // Right
-                new Rectangle(Width - hPadding - ConnectionWidth, vPadding, ConnectionWidth, Height - (vPadding << 1)), ConnectionColor);
-            DrawingUtils.AddRectangle(image, Width, // Top
-                new Rectangle(hPadding, vPadding, Width - (hPadding << 1), ConnectionWidth), ConnectionColor);
-            DrawingUtils.AddRectangle(image, Width, // Bottom
-                new Rectangle(hPadding, Height - vPadding - ConnectionWidth, Width - (hPadding << 1), ConnectionWidth), ConnectionColor);
+            float relativePadding = Math.Min(MathF.Abs(elevation) * (1f / (90 * 2)), .5f);
+            int extraPadding = (ChannelWidth >> 1) - (ConnectionWidth >> 1);
+            int hPadding = Math.Clamp((int)((Width - (extraPadding << 1)) * relativePadding) + extraPadding, 0, Math.Max(0, (Width - ConnectionWidth) >> 1));
+            int vPadding = Math.Clamp((int)((Height - (extraPadding << 1)) * relativePadding) + extraPadding, 0, Math.Max(0, (Height - ConnectionWidth) >> 1));
+            image.AddRectangleSafe(Width, new Rectangle(hPadding, vPadding, ConnectionWidth, Height - (vPadding << 1)), ConnectionColor); // Left
+            image.AddRectangleSafe(Width, new Rectangle(Width - hPadding - ConnectionWidth, vPadding, ConnectionWidth, Height - (vPadding << 1)), ConnectionColor); // Right
+            image.AddRectangleSafe(Width, new Rectangle(hPadding, vPadding, Width - (hPadding << 1), ConnectionWidth), ConnectionColor); // Top
+            image.AddRectangleSafe(Width, new Rectangle(hPadding, Height - vPadding - ConnectionWidth, Width - (hPadding << 1), ConnectionWidth), ConnectionColor); // Bottom
         }
     }
 }

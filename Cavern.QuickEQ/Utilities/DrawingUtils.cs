@@ -57,6 +57,21 @@ namespace Cavern.QuickEQ.Utilities {
         }
 
         /// <summary>
+        /// Draw a colored rectangle on the image in production. Instead of <see cref="ArgumentOutOfRangeException"/>s,
+        /// the rectangle is just cut off when it lands outside the frame.
+        /// </summary>
+        public static void AddRectangleSafe(this uint[] image, int imageWidth, Rectangle rectangle, uint color) {
+            int xStart = Math.Max(0, rectangle.X);
+            int yStart = Math.Max(0, rectangle.Y);
+            int xEnd = Math.Min(imageWidth, rectangle.X + rectangle.Width);
+            int yEnd = Math.Min(image.Length / imageWidth, rectangle.Y + rectangle.Height);
+            if (xEnd <= xStart || yEnd <= yStart) {
+                return;
+            }
+            AddRectangle(image, imageWidth, new Rectangle(xStart, yStart, xEnd - xStart, yEnd - yStart), color);
+        }
+
+        /// <summary>
         /// Draw a colored circle on the image in production.
         /// </summary>
         public static void AddCircle(this uint[] image, int imageWidth, Circle circle, uint color) {
