@@ -20,7 +20,7 @@ namespace Test.Cavern.QuickEQ {
                 ChannelWidth = 8,
                 ConnectionWidth = 16
             };
-            uint[] image = graphics.Draw(new Channel[] { new Channel(0, 0) });
+            uint[] image = graphics.Draw(new[] { new Channel(0, 0) });
             Assert.AreEqual(graphics.Width * graphics.Height, image.Length);
         }
 
@@ -29,10 +29,10 @@ namespace Test.Cavern.QuickEQ {
         /// </summary>
         [TestMethod, Timeout(1000)]
         public void DrawIsStable() {
-            foreach (int size in new int[] { 8, 16, 32, 64, 512 }) {
-                foreach (float elevation in new float[] { -90, -45, 0, 45, 90, 120 }) {
+            foreach (int size in new[] { 8, 16, 32, 64, 512 }) {
+                foreach (float elevation in new[] { -90, -45, 0, 45, 90, 120 }) {
                     ChannelLayoutGraphics graphics = new() { Width = size, Height = size };
-                    graphics.Draw(new Channel[] { new Channel(elevation, 0) });
+                    graphics.Draw(new[] { new Channel(elevation, 0) });
                 }
             }
         }
