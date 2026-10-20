@@ -118,25 +118,6 @@ namespace Cavern.Format.FilterSet.Consts {
         }
 
         /// <summary>
-        /// Get what GUID maps to which actual channel in the MQX file or null if no such mapping is present.
-        /// </summary>
-        public static Dictionary<string, ReferenceChannel> GetChannelMapping(JsonFile mqx) {
-            if (!mqx.ContainsKey(MQXConsts.channelMappingKey)) {
-                return null;
-            }
-
-            JsonFile mapping = (JsonFile)mqx[MQXConsts.channelMappingKey];
-
-            Dictionary<string, ReferenceChannel> result = new Dictionary<string, ReferenceChannel>();
-            foreach (KeyValuePair<string, object> channel in mapping) {
-                JsonFile metadata = (JsonFile)((JsonFile)channel.Value)[metadataKey];
-                ReferenceChannel reference = DesignationToChannel((string)metadata[designationKey]);
-                result[channel.Key] = reference;
-            }
-            return result;
-        }
-
-        /// <summary>
         /// Get the display name and <see cref="ReferenceChannel"/> for each channel GUID in the MQX file,
         /// or null if no channel mapping is present.
         /// </summary>
@@ -175,7 +156,7 @@ namespace Cavern.Format.FilterSet.Consts {
         }
 
         /// <summary>
-        /// Get the ordered channel GUIDs, display names, and reference channels from a parsed MQX document.
+        /// Get the ordered channel GUIDs, display names, and reference channels from a parsed MQX document. In this case, order means the file order.
         /// </summary>
         /// <param name="mqx">Parsed MQX data</param>
         /// <exception cref="CorruptionException">The document has no channel list or channel mapping.</exception>

@@ -2,6 +2,7 @@
 using System.Numerics;
 using System.Runtime.CompilerServices;
 
+using Cavern.Channels;
 using Cavern.Utilities;
 
 namespace Cavern {
@@ -72,6 +73,14 @@ namespace Cavern {
         public Channel(float x, float y, bool LFE) {
             lfe = LFE;
             SetPosition(x, y);
+        }
+
+        /// <summary>
+        /// Import a channel from <paramref name="prototype"/> values.
+        /// </summary>
+        public Channel(ChannelPrototype prototype) {
+            lfe = prototype.LFE;
+            SetPosition(prototype.X, prototype.Y);
         }
 
         /// <summary>

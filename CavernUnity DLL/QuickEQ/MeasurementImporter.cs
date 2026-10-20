@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
-using Cavern.Format.FilterSet.Measurements;
+
+using Cavern.Format.Measurements;
 using Cavern.QuickEQ.Sweeping;
 using Cavern.Waveforms;
 

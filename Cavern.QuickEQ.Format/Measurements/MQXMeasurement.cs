@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
+
 using Cavern.Channels;
 using Cavern.Format.FilterSet.Consts;
 using Cavern.Format.JSON;
@@ -9,11 +10,16 @@ using Cavern.QuickEQ.Measurement;
 using Cavern.Utilities;
 using Cavern.Waveforms;
 
-namespace Cavern.Format.FilterSet.Measurements {
+namespace Cavern.Format.Measurements {
     /// <summary>
     /// Represents a MultEQ-X measurement file containing impulse responses for multiple channels.
     /// </summary>
     public sealed class MQXMeasurement : Measurement {
+        /// <summary>
+        /// Which channels are present in this format and with what name.
+        /// </summary>
+        public (Channel channel, string name)[] Channels { get; private set; }
+
         /// <summary>
         /// Represents a MultEQ-X measurement file containing impulse responses for multiple channels.
         /// </summary>
@@ -57,7 +63,11 @@ namespace Cavern.Format.FilterSet.Measurements {
         /// Parse MQX <paramref name="json"/> into <see cref="MeasuredPosition"/>s.
         /// </summary>
         void ParseMQX(JsonFile json, bool multithreaded) {
-            Dictionary<string, ReferenceChannel> channelMapping = MQXHelpers.GetChannelMapping(json);
+            (string guid, string name, ReferenceChannel reference)[] channels = MQXHelpers.GetOrderedChannels(json).OrderBy(x => x.reference).ToArray();
+            Channels = channels.SelectArray(x => {
+                ChannelPrototype prototype = ChannelPrototype.Mapping[(int)x.reference];
+                return (new Channel(prototype), x.name);
+            });
 
             const string measurementsKey = "_measurements";
             const string dataKey = "Data";
@@ -76,7 +86,7 @@ namespace Cavern.Format.FilterSet.Measurements {
                 if (!parsed.ContainsKey(positionGuid)) {
                     parsed.Add(positionGuid, new List<(ReferenceChannel, float[])>());
                 }
-                parsed[positionGuid].Add((channelMapping[channelGuid], impulseResponse));
+                parsed[positionGuid].Add((channels.First(x => x.guid == channelGuid).reference, impulseResponse));
             }
 
             SampleRate = 48000;

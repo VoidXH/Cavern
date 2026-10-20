@@ -1,7 +1,6 @@
 ﻿using Cavern.QuickEQ.Measurement;
-using Cavern.Waveforms;
 
-namespace Cavern.Format.FilterSet.Measurements {
+namespace Cavern.Format.Measurements {
     /// <summary>
     /// Contains a multiploint measurement's data.
     /// </summary>

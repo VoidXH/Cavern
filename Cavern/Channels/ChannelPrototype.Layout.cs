@@ -5,8 +5,8 @@
         /// </summary>
         public static Channel[] ToLayout(ChannelPrototype[] source) {
             Channel[] result = new Channel[source.Length];
-            for (int channel = 0; channel < source.Length; ++channel) {
-                result[channel] = new Channel(source[channel].X, source[channel].Y, source[channel].LFE);
+            for (int channel = 0; channel < source.Length; channel++) {
+                result[channel] = new Channel(source[channel]);
             }
             return result;
         }

@@ -30,9 +30,5 @@ namespace Cavern.QuickEQ.EQCurves {
         /// <inheritdoc/>
         public override string ToBase64() => throw new NotSupportedException(
             "Smoother cannot be serialized because it depends on frequency response measurements.");
-
-        /// <summary>
-        /// Deserialize a Smoother curve from base64 data.
-        /// </summary>
     }
 }

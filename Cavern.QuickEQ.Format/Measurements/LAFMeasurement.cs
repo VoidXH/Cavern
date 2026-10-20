@@ -1,11 +1,10 @@
 using System;
 using System.IO;
-
 using Cavern.Channels;
 using Cavern.QuickEQ.Measurement;
 using Cavern.Waveforms;
 
-namespace Cavern.Format.FilterSet.Measurements {
+namespace Cavern.Format.Measurements {
     /// <summary>
     /// Represents a Cavern measurement file.
     /// </summary>
