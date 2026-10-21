@@ -141,7 +141,9 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
                 }
             }
 
-            elements[element].UpdateSources(timecode, sources);
+            if (elements.Length != 0) {
+                elements[element].UpdateSources(timecode, sources);
+            }
             int checkedBed = 0;
             int checkedBedInstance = 0;
             for (int i = 0; i < Beds; ++i) {
