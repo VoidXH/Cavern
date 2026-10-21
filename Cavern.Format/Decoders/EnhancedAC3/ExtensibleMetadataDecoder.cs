@@ -55,7 +55,8 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
             if (key == 7) {
                 key += extractor.VariableBits(3);
             }
-            if (version != 0 || key != 0) {
+            // LG consumer streams use key 1 for the same OAMD/JOC payload syntax.
+            if (version != 0 || (key != 0 && key != 1)) {
                 return false;
             }
 

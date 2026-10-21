@@ -26,7 +26,7 @@ namespace Cavern.Format.Transcoders {
                 new ReadableMetadataField("mixmdate", "Mixing metadata exists", mixingEnabled),
                 new ReadableMetadataField("infomdate", "Informational metadata exists", informationalMetadataEnabled),
                 new ReadableMetadataField("blkid", "Block ID", blkid),
-                new ReadableMetadataField("bsid", "Bitstream format ID", (int)Decoder),
+                new ReadableMetadataField("bsid", "Bitstream format ID", bitstreamID),
                 new ReadableMetadataField("bsid (decoded)", "Bitstream format name", Decoder),
                 new ReadableMetadataField("bsmod", "Bitstream mode ID", bsmod),
                 new ReadableMetadataField("cmixlev", "Center downmix code", centerDownmix),

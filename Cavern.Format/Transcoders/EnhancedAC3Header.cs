@@ -59,6 +59,9 @@ namespace Cavern.Format.Transcoders {
         /// </summary>
         public EnhancedAC3.Decoders Decoder { get; private set; }
 
+        // Keep the wire ID when several IDs share the E-AC-3 decoder.
+        int bitstreamID;
+
         /// <summary>
         /// Type of the last decoded substream.
         /// </summary>
@@ -112,7 +115,8 @@ namespace Cavern.Format.Transcoders {
             Blocks = numberOfBlocks[extractor.Read(2)];
             ChannelMode = extractor.Read(3);
             LFE = extractor.ReadBit();
-            Decoder = ParseDecoder(extractor.Read(5));
+            bitstreamID = extractor.Read(5);
+            Decoder = ParseDecoder(bitstreamID);
 
             if (Decoder != EnhancedAC3.Decoders.EAC3) {
                 StreamType = StreamTypes.Repackaged;
@@ -173,7 +177,7 @@ namespace Cavern.Format.Transcoders {
             planter.Write(numberOfBlocks.IndexOf((byte)Blocks), 2);
             planter.Write(ChannelMode, 3);
             planter.Write(LFE);
-            planter.Write((int)Decoder, 5);
+            planter.Write(Decoder == EnhancedAC3.Decoders.EAC3 && bitstreamID == 12 ? 12 : (int)Decoder, 5);
 
             if (Decoder != EnhancedAC3.Decoders.EAC3) {
                 planter.Overwrite(32, SampleRateCode, 2);
@@ -269,7 +273,7 @@ namespace Cavern.Format.Transcoders {
             if (bsid <= (int)EnhancedAC3.Decoders.AC3) {
                 return EnhancedAC3.Decoders.AC3;
             }
-            if (bsid == (int)EnhancedAC3.Decoders.EAC3) {
+            if (bsid == 12 || bsid == (int)EnhancedAC3.Decoders.EAC3) { // LG consumer E-AC-3 or standard E-AC-3
                 return EnhancedAC3.Decoders.EAC3;
             }
             throw new UnsupportedFeatureException("decoder " + bsid);
