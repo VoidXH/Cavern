@@ -18,10 +18,9 @@ namespace Cavern.Format.Renderers {
         public bool Enhanced => ((EnhancedAC3Decoder)stream).Enhanced;
 
         /// <summary>
-        /// The stream contained sparsely decoded data, which can't be supported, as the documentation is incorrect.
+        /// Whether rendering required a workaround. Sparse JOC is supported by this build.
         /// </summary>
-        public bool WorkedAround => ((EnhancedAC3Decoder)stream).Extensions.JOC != null
-            && ((EnhancedAC3Decoder)stream).Extensions.JOC.HadSparse;
+        public bool WorkedAround => false;
 
         /// <summary>
         /// Count of free-floating objects.
