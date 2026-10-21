@@ -89,8 +89,6 @@ public class MainWindowStrings() : LanguageBase<MainWindowStrings>(new() {
     ["CMetT"] = "Codec metadata",
     ["CMeET"] = "Please load a file first.",
     ["CMeUT"] = "The Cavern API does not yet support displaying the metadata of the selected track.",
-    ["JocWa"] = "This file had some parts which were coded in sparse JOC. This part of the E-AC-3 standard is not correctly documented, thus muted sections " +
-    "in the audio are expected.",
     ["RenEr"] = "The audio at {0} could not be rendered. Processing will continue, but the track won't be intact after that timestamp. The exact error: {1}",
     ["SpViE"] = "The active layout does not support height virtualization on speakers. Either disable the option or choose a layout with ground channels only.",
     ["QuAlT"] = "Combined processing",

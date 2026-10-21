@@ -87,7 +87,6 @@ public class MainWindowStringsZH : MainWindowStrings {
         Set("CMetT", "编解码器元数据");
         Set("CMeET", "请先加载文件。");
         Set("CMeUT", "Cavern API尚不支持显示所选轨道的元数据。");
-        Set("JocWa", "此文件的某些部分是用稀疏JOC编码的。E-AC-3标准的这一部分没有正确文档化，因此音频中可能出现静音片段。");
         Set("RenEr", "{0}处的音频无法渲染。处理将继续，但该轨道在此时间戳之后将不完整。具体错误：{1}");
         Set("SpViE", "当前布局不支持在扬声器上进行高度虚拟化。请禁用此选项或选择仅包含地面声道的布局。");
         Set("QuAlT", "组合处理");

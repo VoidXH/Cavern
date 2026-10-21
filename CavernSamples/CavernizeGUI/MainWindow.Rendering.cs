@@ -179,10 +179,6 @@ partial class MainWindow {
         if (Program.ConsoleMode) {
             Dispatcher.Invoke(Close);
         }
-
-        if (target.Renderer is EnhancedAC3Renderer eac3 && eac3.WorkedAround) {
-            Error(language["JocWa"]);
-        }
     }
 
     /// <summary>

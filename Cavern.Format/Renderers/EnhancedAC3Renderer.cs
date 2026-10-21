@@ -18,11 +18,6 @@ namespace Cavern.Format.Renderers {
         public bool Enhanced => ((EnhancedAC3Decoder)stream).Enhanced;
 
         /// <summary>
-        /// Whether rendering required a workaround. Sparse JOC is supported by this build.
-        /// </summary>
-        public bool WorkedAround => false;
-
-        /// <summary>
         /// Count of free-floating objects.
         /// </summary>
         public int DynamicObjects { get; }

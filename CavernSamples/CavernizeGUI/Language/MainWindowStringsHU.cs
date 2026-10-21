@@ -92,8 +92,6 @@ public class MainWindowStringsHU : MainWindowStrings {
         Set("CMetT", "Kodek metaadatok");
         Set("CMeET", "Légy szíves, előbb tölts be egy fájlt.");
         Set("CMeUT", "A Cavern API még nem támogatja a kiválasztott sáv metaadatainak megjelenítését.");
-        Set("JocWa", "A fájl néhány részét ritka JOC-ban kódolták. Az E-AC-3 szabványnak ezen része nincs helyesen dokumentálva, emiatt rövid némítások " +
-            "várhatók a hangban.");
         Set("RenEr", "A hang nem renderelhető a következő ponton: {0}. A feldolgozás folytatódik, de a sáv nem marad összefüggő ezután az idő után. " +
             "A pontos hiba: {1}");
         Set("SpViE", "A jelenlegi kiosztás nem támogatja magasság virtualizálását hangszórókon. Kapcsold ki ezt az opciót, vagy használj olyan kiosztást, " +
