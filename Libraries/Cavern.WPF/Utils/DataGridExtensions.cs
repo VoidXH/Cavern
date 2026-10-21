@@ -8,9 +8,14 @@ namespace Cavern.WPF.Utils;
 /// </summary>
 public static class DataGridExtensions {
     /// <summary>
+    /// Display a 2D matrix in a DataGrid.
+    /// </summary>
+    public static void DisplayMatrix(this DataGrid on, float[][] data, string columnPrefix) => DisplayMatrix(on, data, columnPrefix, null);
+
+    /// <summary>
     /// Display a 2D matrix in a DataGrid. A number <paramref name="format"/>ting can be specified.
     /// </summary>
-    public static void DisplayMatrix(this DataGrid on, float[][] data, string columnPrefix, string format = null) {
+    public static void DisplayMatrix(this DataGrid on, float[][] data, string columnPrefix, string format) {
         DataTable dataTable = new DataTable();
         if (data == null || data.Length == 0) {
             on.ItemsSource = dataTable.DefaultView;

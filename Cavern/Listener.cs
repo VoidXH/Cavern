@@ -56,8 +56,8 @@ namespace Cavern {
                 } catch {
                     Channels = ChannelPrototype.ToLayout(ChannelPrototype.GetStandardMatrix(6));
                     IsSymmetric = true;
-                    leftChannels = 2;
-                    rightChannels = 2;
+                    LeftChannels = 2;
+                    RightChannels = 2;
                     EnvironmentType = Environments.Home;
                     EnvironmentSize = new Vector3(10, 7, 10);
                 }
@@ -136,7 +136,7 @@ namespace Cavern {
         /// </summary>
         static void LayoutChecks() {
             IsSymmetric = SymmetryCalculator.CalculateSymmetry(Channels);
-            (leftChannels, rightChannels) = ChannelArrayExtensions.GetSideChannels(Channels);
+            (LeftChannels, RightChannels) = ChannelArrayExtensions.GetSideChannels(Channels);
         }
 
         /// <summary>

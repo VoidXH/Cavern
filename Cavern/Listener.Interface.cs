@@ -96,12 +96,12 @@ namespace Cavern {
         /// <summary>
         /// Channel count on the left side of the room, but 1 if there's none, as it's used for volume division.
         /// </summary>
-        internal static int leftChannels = 2;
+        internal static int LeftChannels { get; private set; } = 2;
 
         /// <summary>
         /// Channel count on the right side of the room, but 1 if there's none, as it's used for volume division.
         /// </summary>
-        internal static int rightChannels = 2;
+        internal static int RightChannels { get; private set; } = 2;
 
         /// <summary>
         /// 1 / <see cref="EnvironmentSize"/> on each axis. Cached optimization value for when a division is needed.

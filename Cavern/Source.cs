@@ -275,8 +275,8 @@ namespace Cavern {
         /// Render the stereo side mix.
         /// </summary>
         void Stereo1DMix(float volume1D) {
-            float leftVolume = volume1D / Listener.leftChannels,
-                rightVolume = volume1D / Listener.rightChannels;
+            float leftVolume = volume1D / Listener.LeftChannels,
+                rightVolume = volume1D / Listener.RightChannels;
             if (stereoPan < 0) {
                 rightVolume *= 1 - stereoPan * stereoPan;
             } else if (stereoPan > 0) {
