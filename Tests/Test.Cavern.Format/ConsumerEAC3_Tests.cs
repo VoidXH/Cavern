@@ -18,7 +18,9 @@ public class ConsumerEAC3_Tests {
                 byte[] data = new byte[32];
                 int bit = 0;
                 void Put(int value, int width) {
-                    for (int i = width - 1; i >= 0; i--, bit++) data[bit >> 3] |= (byte)(((value >> i) & 1) << (7 - (bit & 7)));
+                    for (int i = width - 1; i >= 0; i--, bit++) {
+                        data[bit >> 3] |= (byte)(((value >> i) & 1) << (7 - (bit & 7)));
+                    }
                 }
                 Put(0x0b77, 16); Put(dependent ? 1 : 0, 2); Put(0, 3); Put(15, 11);
                 Put(0, 2); Put(3, 2); Put(7, 3); Put(1, 1); Put(bsid, 5);
@@ -71,10 +73,13 @@ public class ConsumerEAC3_Tests {
             Assert.AreEqual(7, jocType.GetProperty("ChannelCount").GetValue(joc));
             Assert.AreEqual(7, jocType.GetProperty("ObjectCount").GetValue(joc));
             var matrix = (float[][][][])jocType.GetMethod("GetMixingMatrices").Invoke(joc, new object[] { 1536 });
-            for (int obj = 0; obj < 7; obj++)
-                for (int carrier = 0; carrier < 7; carrier++)
-                    for (int band = 0; band < 64; band++)
+            for (int obj = 0; obj < 7; obj++) {
+                for (int carrier = 0; carrier < 7; carrier++) {
+                    for (int band = 0; band < 64; band++) {
                         Assert.AreEqual(obj == carrier ? 1f : 0f, matrix[obj][23][carrier][band], 1e-5f);
+                    }
+                }
+            }
         }
     }
 
