@@ -23,26 +23,18 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
                 float[][] dpMatrix = mixMatrix[dp];
                 int[] dpVector = sourceVector[dp];
                 int[] dpChannel = inputChannel[dp];
+                int channel = dpChannel[0];
+                int value = offset;
 
                 for (int pb = 0; pb < bands; pb++) {
-                    int channel;
-                    if (pb == 0) {
-                        channel = dpChannel[0];
-                    } else {
-                        channel = (dpChannel[pb - 1] + dpChannel[pb]) % ChannelCount;
+                    if (pb != 0) {
+                        channel = (channel + dpChannel[pb]) % ChannelCount;
                     }
+                    // The vector predictor follows bands, even when the selected carrier changes.
+                    value = (value + dpVector[pb]) % max;
 
                     for (int ch = 0; ch < ChannelCount; ch++) {
-                        float[] chMatrix = dpMatrix[ch];
-                        if (ch == channel) {
-                            if (pb == 0) {
-                                chMatrix[pb] = (offset + dpVector[pb]) % max;
-                            } else {
-                                chMatrix[pb] = (chMatrix[pb - 1] + dpVector[pb]) % max;
-                            }
-                        } else {
-                            chMatrix[pb] = offset;
-                        }
+                        dpMatrix[ch][pb] = ch == channel ? value : center;
                     }
                 }
             }
@@ -125,10 +117,9 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
             if (ObjectActive[obj]) {
                 float gainStep = .2f - quantizationTable[obj] * .1f;
                 if (sparseCoded[obj]) {
-                    // Call DecodeSparse and revert 0 to gainStep when the standard documentation is fixed
-                    //DecodeSparse(obj, mixMatrix, centerValue);
+                    DecodeSparse(obj, mixMatrix, centerValue);
                     HadSparse = true;
-                    Dequantize(obj, mixMatrix, centerValue, 0);
+                    Dequantize(obj, mixMatrix, centerValue, gainStep);
                 } else {
                     DecodeCoarse(obj, mixMatrix, centerValue, gainStep);
                 }
