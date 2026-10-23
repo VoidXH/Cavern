@@ -6,6 +6,7 @@
         public enum Decoders {
             AlternateAC3 = 6,
             AC3 = 8,
+            LG_EAC3 = 12,
             EAC3 = 16
         }
 

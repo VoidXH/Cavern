@@ -1,7 +1,7 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 
 using Cavern.Channels;
-using Cavern.Format.Common;
 using Cavern.Format.Exceptions;
 using Cavern.Format.Utilities;
 using Cavern.Utilities;
@@ -53,6 +53,11 @@ namespace Cavern.Format.Transcoders {
         /// Length of <see cref="channelMapping"/>.
         /// </summary>
         const int channelMappingBits = 16;
+
+        /// <summary>
+        /// The main structure is E-AC-3 instead of legacy AC-3.
+        /// </summary>
+        public bool Enhanced => Decoder >= EnhancedAC3.Decoders.LG_EAC3;
 
         /// <summary>
         /// Used decoder type.
@@ -114,7 +119,7 @@ namespace Cavern.Format.Transcoders {
             LFE = extractor.ReadBit();
             Decoder = ParseDecoder(extractor.Read(5));
 
-            if (Decoder != EnhancedAC3.Decoders.EAC3) {
+            if (!Enhanced) {
                 StreamType = StreamTypes.Repackaged;
                 SubstreamID = 0;
                 Blocks = 6;
@@ -146,14 +151,10 @@ namespace Cavern.Format.Transcoders {
             SampleRate = sampleRates[SampleRateCode];
 
             channelMapping = null;
-            switch (Decoder) {
-                case EnhancedAC3.Decoders.AlternateAC3:
-                case EnhancedAC3.Decoders.AC3:
-                    ReadBitStreamInformation(extractor);
-                    break;
-                case EnhancedAC3.Decoders.EAC3:
-                    ReadBitStreamInformationEAC3(extractor);
-                    break;
+            if (Enhanced) {
+                ReadBitStreamInformationEAC3(extractor);
+            } else {
+                ReadBitStreamInformation(extractor);
             }
 
             StreamTypeOut = StreamType;
@@ -175,21 +176,17 @@ namespace Cavern.Format.Transcoders {
             planter.Write(LFE);
             planter.Write((int)Decoder, 5);
 
-            if (Decoder != EnhancedAC3.Decoders.EAC3) {
+            if (!Enhanced) {
                 planter.Overwrite(32, SampleRateCode, 2);
                 planter.Overwrite(34, frmsizecod, 6);
                 planter.Write(bsmod, 3);
                 planter.Write(ChannelMode, 3);
             }
 
-            switch (Decoder) {
-                case EnhancedAC3.Decoders.AlternateAC3:
-                case EnhancedAC3.Decoders.AC3:
-                    WriteBitStreamInformation(planter);
-                    break;
-                case EnhancedAC3.Decoders.EAC3:
-                    WriteBitStreamInformationEAC3(planter);
-                    break;
+            if (Enhanced) {
+                WriteBitStreamInformationEAC3(planter);
+            } else {
+                WriteBitStreamInformation(planter);
             }
             return planter;
         }
@@ -262,15 +259,10 @@ namespace Cavern.Format.Transcoders {
         /// <summary>
         /// Decoder version check.
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static EnhancedAC3.Decoders ParseDecoder(int bsid) {
-            if (bsid == (int)EnhancedAC3.Decoders.AlternateAC3) {
-                return EnhancedAC3.Decoders.AlternateAC3;
-            }
-            if (bsid <= (int)EnhancedAC3.Decoders.AC3) {
-                return EnhancedAC3.Decoders.AC3;
-            }
-            if (bsid == (int)EnhancedAC3.Decoders.EAC3) {
-                return EnhancedAC3.Decoders.EAC3;
+            if (Enum.IsDefined(typeof(EnhancedAC3.Decoders), bsid)) {
+                return (EnhancedAC3.Decoders)bsid;
             }
             throw new UnsupportedFeatureException("decoder " + bsid);
         }

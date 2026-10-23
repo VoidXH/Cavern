@@ -130,18 +130,20 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         /// <param name="sources">The sources used for rendering this track</param>
         public void UpdateSources(int timecode, IReadOnlyList<Source> sources) {
             timecode -= offset;
-            int element = 0;
-            for (int i = elements.Length - 1; i >= 0; --i) {
-                if (elements[i].MinOffset < 0) {
-                    continue;
+            if (elements.Length != 0) {
+                int element = 0;
+                for (int i = elements.Length - 1; i >= 0; --i) {
+                    if (elements[i].MinOffset < 0) {
+                        continue;
+                    }
+                    if (elements[i].MinOffset <= timecode) {
+                        element = i;
+                        break;
+                    }
                 }
-                if (elements[i].MinOffset <= timecode) {
-                    element = i;
-                    break;
-                }
+                elements[element].UpdateSources(timecode, sources);
             }
 
-            elements[element].UpdateSources(timecode, sources);
             int checkedBed = 0;
             int checkedBedInstance = 0;
             for (int i = 0; i < Beds; ++i) {

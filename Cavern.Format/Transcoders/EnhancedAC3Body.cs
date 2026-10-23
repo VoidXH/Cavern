@@ -64,7 +64,7 @@ namespace Cavern.Format.Transcoders {
             if (chexpstr == null) { // If caches don't exist, create them
                 CreateCacheTables(header.Blocks, channels.Length);
             }
-            if (header.Decoder == EnhancedAC3.Decoders.EAC3) {
+            if (header.Enhanced) {
                 DecodeAudioFrame();
             } else {
                 blkswe = true;
@@ -83,7 +83,7 @@ namespace Cavern.Format.Transcoders {
         /// Do the mandatory steps before writing the audio blocks.
         /// </summary>
         public void PrepareUpdate(BitPlanter planter) {
-            if (header.Decoder == EnhancedAC3.Decoders.EAC3) {
+            if (header.Enhanced) {
                 EncodeAudioFrame(planter);
             }
         }

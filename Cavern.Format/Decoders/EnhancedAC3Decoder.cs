@@ -17,7 +17,7 @@ namespace Cavern.Format.Decoders {
         /// <summary>
         /// The stream is coded in the Enhanced version of AC-3.
         /// </summary>
-        public bool Enhanced => header.Decoder == Transcoders.EnhancedAC3.Decoders.EAC3;
+        public bool Enhanced => header.Decoder >= Transcoders.EnhancedAC3.Decoders.LG_EAC3;
 
         /// <summary>
         /// True if the stream has reached its end.

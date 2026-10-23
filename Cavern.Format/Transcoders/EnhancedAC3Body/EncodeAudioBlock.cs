@@ -11,7 +11,7 @@ namespace Cavern.Format.Transcoders {
         /// <param name="planter">Bitstream to write to</param>
         /// <param name="block">Number of the block in the currently decoded syncframe</param>
         internal void EncodeAudioBlock(BitPlanter planter, int block) {
-            bool eac3 = header.Decoder == EnhancedAC3.Decoders.EAC3;
+            bool eac3 = header.Enhanced;
 
             if (blkswe) {
                 for (int channel = 0; channel < channels.Length; channel++) {

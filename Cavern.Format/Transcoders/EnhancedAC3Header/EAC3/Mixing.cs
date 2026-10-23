@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 
 using Cavern.Format.Utilities;
 
@@ -176,12 +177,14 @@ namespace Cavern.Format.Transcoders {
         /// <summary>
         /// Get the center downmix gain when downmixing in Lt/Rt mode.
         /// </summary>
-        float GetCenterDownmixLtRt() => Decoder == EnhancedAC3.Decoders.EAC3 ? GetCenterDownmix(centerDownmix >> 3) : GetCenterDownmixAC3();
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        float GetCenterDownmixLtRt() => Enhanced ? GetCenterDownmix(centerDownmix >> 3) : GetCenterDownmixAC3();
 
         /// <summary>
         /// Get the center downmix gain when downmixing in Lt/Rt mode.
         /// </summary>
-        float GetCenterDownmixLoRo() => Decoder == EnhancedAC3.Decoders.EAC3 ? GetCenterDownmix(centerDownmix & 0x7) : GetCenterDownmixAC3();
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        float GetCenterDownmixLoRo() => Enhanced ? GetCenterDownmix(centerDownmix & 0x7) : GetCenterDownmixAC3();
 
         /// <summary>
         /// Get the center downmix gain from an E-AC3 code.

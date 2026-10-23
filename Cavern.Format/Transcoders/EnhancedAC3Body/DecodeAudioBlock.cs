@@ -12,7 +12,7 @@ namespace Cavern.Format.Transcoders {
         /// </summary>
         /// <param name="block">Number of the block in the currently decoded syncframe</param>
         internal void DecodeAudioBlock(int block) {
-            bool eac3 = header.Decoder == EnhancedAC3.Decoders.EAC3;
+            bool eac3 = header.Enhanced;
 
             if (blkswe) {
                 for (int channel = 0; channel < channels.Length; channel++) {
