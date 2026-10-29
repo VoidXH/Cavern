@@ -73,7 +73,7 @@ public partial class MainWindow : Window {
         }
 
         if (audioFile == null) {
-            visualizables = [.. Visualizables.Database.Concat(Visualizables.DatabaseForFiles)];
+            visualizables = Visualizables.All;
             waveform.ItemsSource = visualizables;
         }
 

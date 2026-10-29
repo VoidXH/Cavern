@@ -1,4 +1,6 @@
-﻿using Cavern.Filters;
+using System.Collections.Generic;
+
+using Cavern.Filters;
 using Cavern.QuickEQ;
 using Cavern.QuickEQ.Measurement;
 using Cavern.Utilities;
@@ -44,6 +46,22 @@ public static class Visualizables {
         new("Phase (wrapped)", file => Measurements.GetPhase(file.FFT())),
         new("Phase-shifted loaded file (forward)", file => PhaseShifter.PhaseShiftInPlace(file, true)),
     ];
+
+    /// <summary>
+    /// Visualizables registered by extensions, all of which require a loaded file.
+    /// </summary>
+    public static readonly List<Visualizable> Extensions = [];
+
+    /// <summary>
+    /// Registers new visualizables for display in the waveform dropdown. They are only shown after a file has been loaded.
+    /// </summary>
+    /// <param name="visualizables">The visualizables to register</param>
+    public static void Register(params Visualizable[] visualizables) => Extensions.AddRange(visualizables);
+
+    /// <summary>
+    /// All visualizables that can be displayed once a file has been loaded.
+    /// </summary>
+    public static Visualizable[] All => [.. Database, .. DatabaseForFiles, .. Extensions];
 
     /// <summary>
     /// Get the unwrapped phase curve for a <paramref name="signal"/>.

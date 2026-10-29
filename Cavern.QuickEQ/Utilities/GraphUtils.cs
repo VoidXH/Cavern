@@ -148,7 +148,7 @@ namespace Cavern.QuickEQ.Utilities {
                 sumX += i;
                 sumY += data[i];
                 sumXY += i * data[i];
-                sumX2 += i * i;
+                sumX2 += (float)i * i;
             }
             int length = to - from;
             float slope = (length * sumXY - sumX * sumY) / (length * sumX2 - sumX * sumX);
