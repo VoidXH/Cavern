@@ -9,8 +9,6 @@ using Cavern.Format.ConfigurationFile.Presets;
 using Cavern.Format.FilterSet;
 using Cavern.Remapping;
 
-using static Cavern.Format.FilterSet.EqualizerFilterSet;
-
 namespace Cavern.Format.ConfigurationFile {
     /// <summary>
     /// Takes an emptry <see cref="ConfigurationFile"/>, and allows linear appending of filters to the end of channel filter chains.
@@ -69,8 +67,10 @@ namespace Cavern.Format.ConfigurationFile {
         public void AddFilterSet(FilterSet.FilterSet set) {
             if (set is EqualizerFilterSet eqSet) {
                 AddFilterSet(eqSet);
+            } else if (set is FIRFilterSet firSet) {
+                AddFilterSet(firSet);
             } else {
-                throw new NotImplementedException("Only EqualizerFilterSets are supported for configuration files.");
+                throw new NotImplementedException("Only EqualizerFilterSets and FIRFilterSets are supported for configuration files.");
             }
         }
 
@@ -94,11 +94,25 @@ namespace Cavern.Format.ConfigurationFile {
         }
 
         /// <summary>
+        /// Add an existing <see cref="FIRFilterSet"/>'s corrections for each corresponding channel.
+        /// </summary>
+        public void AddFilterSet(FIRFilterSet set) {
+            for (int i = 0; i < set.ChannelCount; i++) {
+                FIRChannelData filter = (FIRChannelData)set.Channels[i];
+                ReferenceChannel channel = filter.reference;
+                if (filter.delaySamples != 0) {
+                    AddToChannel(channel, new Delay(set.GetDelay(i), set.SampleRate));
+                }
+                if (filter.filter != null && filter.filter.Length > 0) {
+                    AddToChannel(channel, new FastConvolver(filter.filter, set.SampleRate));
+                }
+            }
+        }
+
+        /// <summary>
         /// Add a <see cref="Crossover"/> to the <see cref="ConfigurationFile"/>'s beginning.
         /// </summary>
-        public void AddCrossoverToFront(CrossoverFilterSet set) {
-            set.Add(file, 0);
-        }
+        public void AddCrossoverToFront(CrossoverFilterSet set) => set.Add(file, 0);
 
         /// <summary>
         /// Add a <see cref="SpatialRemapping"/> to the <see cref="ConfigurationFile"/>'s beginning.
