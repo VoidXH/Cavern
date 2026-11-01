@@ -104,7 +104,7 @@ namespace Cavern.Format.ConfigurationFile {
                     AddToChannel(channel, new Delay(set.GetDelay(i), set.SampleRate));
                 }
                 if (filter.filter != null && filter.filter.Length > 0) {
-                    AddToChannel(channel, new FastConvolver(filter.filter, set.SampleRate));
+                    AddToChannel(channel, new FastConvolver(filter.filter, set.SampleRate, 0));
                 }
             }
         }
