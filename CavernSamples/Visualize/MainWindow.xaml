@@ -11,6 +11,7 @@
             <RowDefinition Height="30"/>
         </Grid.RowDefinitions>
         <ComboBox Name="waveform" Margin="5" HorizontalAlignment="Left" Width="300" SelectionChanged="OnWaveformChanged"/>
+        <Button Margin="5,5,110,5" HorizontalAlignment="Right" Width="120" Content="Export displayed" Click="ExportDisplayed"/>
         <Button Margin="5" HorizontalAlignment="Right" Width="100" Content="Load file" Click="LoadFile"/>
         <Grid Name="imageHolder" Grid.Row="1" MouseWheel="OnScroll" SizeChanged="OnResize">
             <Image Name="image" Stretch="Fill"/>

@@ -1,5 +1,4 @@
 ﻿using Microsoft.Win32;
-using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -8,6 +7,7 @@ using Cavern.QuickEQ.Graphing;
 using Cavern.WPF.Utils;
 using Cavern.Format;
 using Cavern.Utilities;
+using Cavern.Waveforms;
 
 namespace Visualize;
 
@@ -16,7 +16,7 @@ namespace Visualize;
 /// </summary>
 public partial class MainWindow : Window {
     /// <summary>
-    /// Where we're scolled.
+    /// Where we're scrolled.
     /// </summary>
     double scale = 1;
 
@@ -24,6 +24,11 @@ public partial class MainWindow : Window {
     /// A loaded waveform.
     /// </summary>
     float[] audioFile;
+
+    /// <summary>
+    /// Sample rate of the loaded <see cref="audioFile"/>.
+    /// </summary>
+    int sampleRate;
 
     /// <summary>
     /// Possible waveforms to display.
@@ -79,8 +84,35 @@ public partial class MainWindow : Window {
 
         using AudioReader reader = AudioReader.Open(dialog.FileName);
         audioFile = reader.ReadMultichannel()[0]; // Only the first channel is used
+        sampleRate = reader.SampleRate;
         waveform.SelectedItem = Visualizables.rawFile;
         Redraw(null, null);
+    }
+
+    /// <summary>
+    /// Export the currently displayed waveform as a WAV file in float32 format.
+    /// </summary>
+    void ExportDisplayed(object _, RoutedEventArgs e) {
+        if (waveform.SelectedIndex == -1) {
+            return;
+        }
+
+        float[] result = visualizables[waveform.SelectedIndex].Produce(audioFile);
+        if (result == null || result.Length == 0) {
+            return;
+        }
+
+        SaveFileDialog dialog = new() {
+            Filter = "WAV files (*.wav)|*.wav",
+            DefaultExt = ".wav",
+            FileName = "Displayed.wav"
+        };
+
+        if (!dialog.ShowDialog().Value) {
+            return;
+        }
+
+        AudioWriter.Write(dialog.FileName, new MultichannelWaveform([result]), sampleRate, BitDepth.Float32);
     }
 
     /// <summary>
