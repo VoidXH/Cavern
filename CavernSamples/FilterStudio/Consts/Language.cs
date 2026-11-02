@@ -32,6 +32,11 @@ namespace FilterStudio.Consts {
         public static ResourceDictionary GetRenameDialogStrings() => renameDialogCache ??= ResourceUtils.GetTranslationFor("RenameDialogStrings", supported);
 
         /// <summary>
+        /// Get the <see cref="SimulationExportDialog"/>'s translation.
+        /// </summary>
+        public static ResourceDictionary GetSimulationExportDialogStrings() => simulationExportDialogCache ??= ResourceUtils.GetTranslationFor("SimulationExportDialogStrings", supported);
+
+        /// <summary>
         /// Languages supported that are not the default English.
         /// </summary>
         static readonly string[] supported = ["hu-HU", "zh-CN"];
@@ -55,5 +60,10 @@ namespace FilterStudio.Consts {
         /// The loaded translation of the <see cref="RenameDialog"/> for reuse.
         /// </summary>
         static ResourceDictionary renameDialogCache;
+
+        /// <summary>
+        /// The loaded translation of the <see cref="SimulationExportDialog"/> for reuse.
+        /// </summary>
+        static ResourceDictionary simulationExportDialogCache;
     }
 }

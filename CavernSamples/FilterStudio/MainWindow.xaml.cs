@@ -78,14 +78,17 @@ namespace FilterStudio {
         /// <summary>
         /// If a filter can be translated to the user's language, return that instead of a regular ToString.
         /// </summary>
-        static string FilterToString(Filter filter) =>
-            filter is ILocalizableToString loc ? loc.ToString(CultureInfo.CurrentCulture) : filter.ToString();
+        static string FilterToString(Filter filter) => filter is ILocalizableToString loc ? loc.ToString(CultureInfo.CurrentCulture) : filter.ToString();
 
         /// <summary>
         /// Displays a message for a successful operation.
         /// </summary>
-        static void Success(string message) =>
-            MessageBox.Show(message, (string)language["Succe"], MessageBoxButton.OK, MessageBoxImage.Information);
+        static void Success(string message) => MessageBox.Show(message, (string)language["Succe"], MessageBoxButton.OK, MessageBoxImage.Information);
+
+        /// <summary>
+        /// Displays a warning message to the user.
+        /// </summary>
+        static void Warning(string message) => MessageBox.Show(message, (string)language["Warni"], MessageBoxButton.OK, MessageBoxImage.Warning);
 
         /// <summary>
         /// Displays an error message.
@@ -95,7 +98,7 @@ namespace FilterStudio {
         /// <summary>
         /// Warns the user about something potentially destructive happening, and asks them if they want to continue.
         /// </summary>
-        static bool Warning(string question) =>
+        static bool WarningYesNo(string question) =>
             MessageBox.Show(question, (string)language["Warni"], MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes;
 
         /// <summary>
@@ -112,145 +115,6 @@ namespace FilterStudio {
         }
 
         /// <summary>
-        /// Create a new empty configuration.
-        /// </summary>
-        void NewConfiguration(object _, RoutedEventArgs e) {
-            pipeline.Source = new CavernFilterStudioConfigurationFile((string)language["NSNew"], channels);
-            ReloadGraph();
-        }
-
-        /// <summary>
-        /// Open a configuration file of known formats.
-        /// </summary>
-        void LoadConfiguration(object _, RoutedEventArgs e) {
-            OpenFileDialog dialog = new() {
-                Filter = (string)language["OpFil"]
-            };
-            if (dialog.ShowDialog().Value) {
-                try {
-                    ConfigurationFileType type = ConfigurationFileType.EqualizerAPO;
-                    using (FileStream file = File.OpenRead(dialog.FileName)) {
-                        int magicNumber = file.ReadInt32();
-                        if (magicNumber == 0x3CBFBBEF) {
-                            type = ConfigurationFileType.CavernFilterStudio;
-                        } else if (magicNumber == ConvolutionBoxFormatConfigurationFile.syncWord) {
-                            type = ConfigurationFileType.ConvolutionBoxFormat;
-                        }
-                    }
-
-                    ConfigurationFile import = type switch {
-                        ConfigurationFileType.CavernFilterStudio => new CavernFilterStudioConfigurationFile(dialog.FileName),
-                        ConfigurationFileType.ConvolutionBoxFormat => new ConvolutionBoxFormatConfigurationFile(dialog.FileName),
-                        _ => new EqualizerAPOConfigurationFile(dialog.FileName, SampleRate)
-                    };
-
-                    // Format-specific error checks
-                    if (import is ConvolutionBoxFormatConfigurationFile cbf) {
-                        sampleRate.SelectedItem = cbf.SampleRate;
-                        if ((int)sampleRate.SelectedItem != cbf.SampleRate) {
-                            Error((string)language["NUnSR"]);
-                        }
-                    }
-
-                    pipeline.Source = import;
-                } catch (Exception ex) {
-                    Error(string.Format((string)language["NLoad"], ex.Message));
-                }
-            }
-        }
-
-        /// <summary>
-        /// Export the configuration file to a new path in <see cref="CavernFilterStudioConfigurationFile"/>.
-        /// </summary>
-        void ExportCavernFilterStudio(object source, RoutedEventArgs e) =>
-            ExportConfiguration(source, () => new CavernFilterStudioConfigurationFile(pipeline.Source));
-
-        /// <summary>
-        /// Export the configuration file to a new path in <see cref="ConvolutionBoxFormatConfigurationFile"/>.
-        /// </summary>
-        void ExportConvolutionBoxFormat(object source, RoutedEventArgs e) =>
-            ExportConfiguration(source, () => new ConvolutionBoxFormatConfigurationFile(pipeline.Source, SampleRate));
-
-        /// <summary>
-        /// Export the configuration file to a new path in <see cref="EqualizerAPOConfigurationFile"/>.
-        /// </summary>
-        void ExportEqualizerAPO(object source, RoutedEventArgs e) =>
-            ExportConfiguration(source, () => new EqualizerAPOConfigurationFile(pipeline.Source));
-
-        /// <summary>
-        /// Makes sure the configuration file is ready for export, returns true if it is.
-        /// </summary>
-        bool ExportChecks() {
-            int systemSampleRate = SampleRate;
-            HashSet<IFilterGraphNode> map = pipeline.Source.SplitPoints[0].Roots.MapGraph();
-            Filter mismatch = map.FirstOrDefault(x => x.Filter != null &&
-                x.Filter is ISampleRateDependentFilter sr && sr.SampleRate != systemSampleRate)?.Filter;
-            if (mismatch != null && !Warning(string.Format((string)language["WSaRe"], FilterToString(mismatch), systemSampleRate,
-                ((ISampleRateDependentFilter)mismatch).SampleRate))) {
-                return false;
-            }
-            return true;
-        }
-
-        /// <summary>
-        /// Export the configuration file to a new path.
-        /// </summary>
-        /// <param name="generator">Creates the <see cref="ConfigurationFile"/> for export in the target format</param>
-        void ExportConfiguration(object source, Func<ConfigurationFile> generator) {
-            if (pipeline.Source == null) {
-                Error((string)language["NoCon"]);
-                return;
-            } else if (!ExportChecks()) {
-                return;
-            }
-
-            ConfigurationFile file;
-            try {
-                file = generator();
-            } catch (Exception e) {
-                Error(e.Message);
-                return;
-            }
-
-            SaveFileDialog dialog = new SaveFileDialog() {
-                FileName = $"{file.SplitPoints[0].Name}.{file.FileExtension}",
-                Filter = $"{((MenuItem)source).Header}|*.{file.FileExtension}"
-            };
-            if (dialog.ShowDialog().Value) {
-                try {
-                    file.Export(dialog.FileName);
-                    Success((string)language["ExSuc"]);
-                } catch (UnsupportedFilterForExportException e) {
-                    Error(string.Format((string)language["NUnFi"], FilterToString(e.Filter)));
-                } catch (Exception e) {
-                    Error(e.Message);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Select the channels that are available in the system.
-        /// </summary>
-        void SelectChannels(object _, RoutedEventArgs e) {
-            if (pipeline.Source != null) {
-                Error((string)language["NOpen"]);
-            }
-
-            ChannelSelector dialog = new(this) {
-                SelectedChannels = channels
-            };
-            if (dialog.ShowDialog().Value) {
-                ReferenceChannel[] newChannels = dialog.SelectedChannels;
-                if (newChannels.Length != 0) {
-                    channels = newChannels;
-                    Settings.Default.channels = channels.GetMask();
-                } else {
-                    Error((string)language["NChan"]);
-                }
-            }
-        }
-
-        /// <summary>
         /// Handle when the instructions are enabled or disabled.
         /// </summary>
         void SetInstructions(object _, RoutedEventArgs e) {
@@ -261,17 +125,22 @@ namespace FilterStudio {
         }
 
         /// <summary>
-        /// Shows information about the used Cavern library and its version.
+        /// Open a configuration file dropped onto the window.
         /// </summary>
-        void About(object _, RoutedEventArgs e) => MessageBox.Show(Listener.Info, (string)language["HAbou"]);
-
-        /// <summary>
-        /// Open Cavern's website.
-        /// </summary>
-        void Ad(object _, RoutedEventArgs e) => Process.Start(new ProcessStartInfo {
-            FileName = "https://cavern.sbence.hu",
-            UseShellExecute = true
-        });
+        void OnFileDropped(object sender, DragEventArgs e) {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop)) {
+                string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
+                foreach (string file in files) {
+                    if (Directory.Exists(file)) {
+                        foreach (string nestedFile in Directory.GetFiles(file, "*.*", SearchOption.AllDirectories)) {
+                            OpenConfigurationFile(nestedFile);
+                        }
+                    } else {
+                        OpenConfigurationFile(file);
+                    }
+                }
+            }
+        }
 
         /// <summary>
         /// A different split of the edited file is selected.

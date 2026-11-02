@@ -13,6 +13,8 @@ using Cavern.Format.ConfigurationFile;
 using Cavern.Format.ConfigurationFile.Presets;
 using Cavern.Format.FilterSet;
 using Cavern.Format.Utilities;
+using Cavern.Channels;
+using Cavern.Utilities;
 using Cavern.Waveforms;
 using Cavern.WPF;
 using VoidX.WPF;
@@ -133,6 +135,11 @@ namespace FilterStudio {
                 return;
             }
 
+            SimulationExportDialog settings = new();
+            if (!settings.ShowDialog().Value) {
+                return;
+            }
+
             SaveFileDialog exporter = new() {
                 Filter = $"WAV {language["files"]}|*.wav",
                 FileName = (string)language["ExpFN"],
@@ -141,10 +148,30 @@ namespace FilterStudio {
                 return;
             }
 
-            ConfigurationFileSimulator simulator = new(pipeline.Source);
+            CavernFilterStudioConfigurationFile config = new(pipeline.Source.SplitPoints[uid]);
+            ConfigurationFileSimulator simulator = new(config);
             MultichannelWaveform simulation = simulator.Simulate(channels.SelectedChannels, 65536);
-            using RIFFWaveWriter writer = new(exporter.FileName, simulation.Channels, simulation.Length, SampleRate, BitDepth.Float32);
-            writer.Write(simulation.ToArray());
+
+            float lfeMultiplier = QMath.DbToGain(-settings.LfeHeadroomDb);
+            for (int ch = 0; ch < simulation.Channels; ch++) {
+                ReferenceChannel channel = ((InputChannel)config.InputChannels[ch].root.Filter).Channel;
+                if (channel != ReferenceChannel.ScreenLFE) {
+                    WaveformUtils.Gain(simulation[ch], lfeMultiplier);
+                }
+            }
+
+            if (settings.MixToSingleChannel) {
+                int lfeIndex = config.InputChannels.IndexOf(x => x.root.Filter is InputChannel inputCh && inputCh.Channel == ReferenceChannel.ScreenLFE);
+                float[] mono = simulation.GetMonoMix();
+                simulation = new MultichannelWaveform(mono, 1);
+            }
+
+            try {
+                using RIFFWaveWriter writer = new(exporter.FileName, simulation.Channels, simulation.Length, SampleRate, BitDepth.Float32);
+                writer.Write(simulation.ToArray());
+            } catch (Exception ex) {
+                Warning(string.Format((string)language["ErExp"], ex.Message));
+            }
         });
 
         /// <summary>

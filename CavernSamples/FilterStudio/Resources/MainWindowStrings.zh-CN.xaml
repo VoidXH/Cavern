@@ -42,15 +42,15 @@
     <system:String x:Key="OpMer">_合并所有组（不可逆）</system:String>
     <system:String x:Key="OpExp">导出所选组_到设备</system:String>
     <system:String x:Key="CoExp">_导出到设备</system:String>
-    <system:String x:Key="OpSim">将所选组模拟_到WAV</system:String>
-    <system:String x:Key="CoSim">模拟_到WAV</system:String>
+    <system:String x:Key="OpSim">将所选组模拟_到WAV...</system:String>
+    <system:String x:Key="CoSim">模拟_到WAV...</system:String>
     <system:String x:Key="OpRen">_重命名所选组</system:String>
     <system:String x:Key="CoRen">_重命名</system:String>
     <system:String x:Key="OpCle">_清空所选组</system:String>
     <system:String x:Key="CoCle">_清空</system:String>
     <system:String x:Key="OpDeP">_删除所选组</system:String>
     <system:String x:Key="ExpFN">Cavern Filter Studio 导出</system:String>
-    <system:String x:Key="files">文件</system:String>
+    <system:String x:Key="ErExp">WAV 文件导出失败：{0}</system:String>
 
     <system:String x:Key="MHelp">_帮助</system:String>
     <system:String x:Key="OpShI">_显示说明</system:String>

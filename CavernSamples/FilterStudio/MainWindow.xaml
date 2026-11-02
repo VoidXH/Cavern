@@ -5,7 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:fs="clr-namespace:FilterStudio.Graphs"
         mc:Ignorable="d"
-        Title="Cavern Filter Studio" Width="1024" Height="768" WindowState="Maximized" Background="#696969">
+        Title="Cavern Filter Studio" Width="1024" Height="768" WindowState="Maximized" Background="#696969"
+        AllowDrop="True" Drop="OnFileDropped">
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>

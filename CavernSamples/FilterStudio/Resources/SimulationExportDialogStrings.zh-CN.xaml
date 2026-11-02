@@ -1,0 +1,7 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:system="clr-namespace:System;assembly=mscorlib">
+    <system:String x:Key="TSimE">模拟导出</system:String>
+    <system:String x:Key="DeLFE">LFE 电平余量 (dB):</system:String>
+    <system:String x:Key="DeMix">混合到单个输出声道</system:String>
+</ResourceDictionary>
