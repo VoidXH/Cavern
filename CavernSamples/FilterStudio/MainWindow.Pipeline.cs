@@ -6,6 +6,7 @@ using System.Globalization;
 using System.Linq;
 using System.Windows;
 
+using Cavern.Channels;
 using Cavern.Filters;
 using Cavern.Filters.Utilities;
 using Cavern.Format;
@@ -13,13 +14,14 @@ using Cavern.Format.ConfigurationFile;
 using Cavern.Format.ConfigurationFile.Presets;
 using Cavern.Format.FilterSet;
 using Cavern.Format.Utilities;
-using Cavern.Channels;
+using Cavern.QuickEQ.Equalization;
 using Cavern.Utilities;
 using Cavern.Waveforms;
 using Cavern.WPF;
 using VoidX.WPF;
 
 using FilterStudio.Graphs;
+using FilterStudio.Resources;
 using FilterStudio.Windows;
 using FilterStudio.Windows.PipelineSteps;
 
@@ -149,6 +151,16 @@ namespace FilterStudio {
             }
 
             CavernFilterStudioConfigurationFile config = new(pipeline.Source.SplitPoints[uid]);
+            if (Settings.Default.graphicEQLinearPhase) {
+                IEnumerable<IFilterGraphNode> rootNodes = config.InputChannels.SelectArray(x => x.root);
+                HashSet<IFilterGraphNode> allNodes = FilterGraphNodeUtils.MapGraph(rootNodes);
+                foreach (IFilterGraphNode node in allNodes) {
+                    if (node.Filter is GraphicEQ graphicEQ) {
+                        node.Filter = new FastConvolver(graphicEQ.Equalizer.GetLinearConvolution(SampleRate, 65536), SampleRate, 0);
+                    }
+                }
+            }
+
             ConfigurationFileSimulator simulator = new(config);
             MultichannelWaveform simulation = simulator.Simulate(channels.SelectedChannels, 65536);
 

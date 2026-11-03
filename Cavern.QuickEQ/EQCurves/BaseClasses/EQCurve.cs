@@ -31,6 +31,7 @@ namespace Cavern.QuickEQ.EQCurves {
                 case CurveFunction.Bandpass:
                 case CurveFunction.Custom:
                 case CurveFunction.Smoother:
+                case CurveFunction.AutoRoomCurve:
                     throw new NonGeneralizedCurveException();
                 default:
                     return new Flat();

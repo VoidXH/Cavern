@@ -34,6 +34,10 @@
         /// <summary>
         /// Smooths out inter-channel differences while keeping the system's sound character.
         /// </summary>
-        Smoother
+        Smoother,
+        /// <summary>
+        /// A room curve that follows the bass rise of the user's uncorrected room.
+        /// </summary>
+        AutoRoomCurve
     }
 }

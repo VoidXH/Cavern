@@ -15,6 +15,7 @@ using Cavern.Filters.Utilities;
 using Cavern.WPF;
 
 using FilterStudio.Resources;
+using FilterStudio.Windows;
 
 namespace FilterStudio {
     // Click handlers of each item under "File"
@@ -161,6 +162,16 @@ namespace FilterStudio {
                 } else {
                     Error((string)language["NChan"]);
                 }
+            }
+        }
+
+        /// <summary>
+        /// Open the settings window.
+        /// </summary>
+        void OpenSettings(object _, RoutedEventArgs e) {
+            SettingsDialog dialog = new();
+            if (dialog.ShowDialog().Value) {
+                settingChanged = true;
             }
         }
     }

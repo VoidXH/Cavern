@@ -6,6 +6,7 @@
     <system:String x:Key="OpCfg">_打开配置文件...</system:String>
     <system:String x:Key="OpSaA">保存配置文件_至</system:String>
     <system:String x:Key="OpChs">_选择声道...</system:String>
+    <system:String x:Key="OpSet">_设置...</system:String>
 
     <system:String x:Key="MFilt">滤_波器</system:String>
     <system:String x:Key="FShif">_并行添加（与按住Shift键效果相同）</system:String>
