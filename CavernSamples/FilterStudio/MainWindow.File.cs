@@ -127,7 +127,7 @@ namespace FilterStudio {
                 return;
             }
 
-            SaveFileDialog dialog = new SaveFileDialog() {
+            SaveFileDialog dialog = new() {
                 FileName = $"{file.SplitPoints[0].Name}.{file.FileExtension}",
                 Filter = $"{((MenuItem)source).Header}|*.{file.FileExtension}"
             };

@@ -173,7 +173,6 @@ namespace FilterStudio {
             }
 
             if (settings.MixToSingleChannel) {
-                int lfeIndex = config.InputChannels.IndexOf(x => x.root.Filter is InputChannel inputCh && inputCh.Channel == ReferenceChannel.ScreenLFE);
                 float[] mono = simulation.GetMonoMix();
                 simulation = new MultichannelWaveform(mono, 1);
             }
