@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<TargetFramework>net8.0-windows</TargetFramework>
+		<OutputType>Library</OutputType>
+		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+		<Version>1.0</Version>
+		<Authors>VoidX</Authors>
+		<Description>Quick page-based UI shell with a left side icon panel for WPF applications.</Description>
+		<Copyright>Copyright © Bence Sgánetz 2016-2026</Copyright>
+		<PackageProjectUrl>https://cavern.sbence.hu/</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/VoidXH/Cavern</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
+		<PackageTags>audio;sound;rendering;spatial audio;surround sound</PackageTags>
+		<NeutralLanguage>en</NeutralLanguage>
+		<Nullable>disable</Nullable>
+		<UseWPF>true</UseWPF>
+		<ImplicitUsings>enable</ImplicitUsings>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)' == 'Release'">
+		<DebugSymbols>false</DebugSymbols>
+		<DebugType>none</DebugType>
+		<Optimize>true</Optimize>
+	</PropertyGroup>
+</Project>

@@ -1,0 +1,16 @@
+<UserControl x:Class="Cavern.WPF.QuickUI.QuickShell"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="70"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- Left panel: step icons -->
+        <StackPanel x:Name="StepPanel" Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,16,0,0"/>
+
+        <!-- Right panel: pages -->
+        <Grid x:Name="PagePanel" Grid.Column="1" Margin="8,16,16,16"/>
+    </Grid>
+</UserControl>
