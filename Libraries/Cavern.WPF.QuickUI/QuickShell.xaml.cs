@@ -104,7 +104,7 @@ namespace Cavern.WPF.QuickUI {
                     Source = step.Icon
                 }
             };
-            button.Click += (s, e) => SetActiveStep(steps.IndexOf(step));
+            button.Click += (s, _) => SetActiveStep(steps.IndexOf(step));
             return button;
         }
     }
