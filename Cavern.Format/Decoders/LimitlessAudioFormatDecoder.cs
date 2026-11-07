@@ -18,6 +18,11 @@ namespace Cavern.Format.Decoders {
         public Vector3[] ObjectPositions { get; }
 
         /// <summary>
+        /// Channel layout of the file.
+        /// </summary>
+        public Channel[] Channels { get; }
+
+        /// <summary>
         /// Bytes used before each second of samples to determine which channels are actually exported.
         /// </summary>
         readonly int layoutByteCount;
@@ -82,21 +87,23 @@ namespace Cavern.Format.Decoders {
             stream.ReadByte(); // Channel mode indicator (skipped)
             trackCount = stream.ReadInt32();
             layoutByteCount = (trackCount & 7) == 0 ? trackCount >> 3 : ((trackCount >> 3) + 1);
-            Channel[] channels = new Channel[trackCount];
+            Channel[] tracks = new Channel[trackCount];
             for (int channel = 0; channel < trackCount; channel++) {
                 float x = stream.ReadSingle();
                 if (float.IsNaN(x) && ChannelCount == 0) {
                     ChannelCount = channel;
                 }
-                channels[channel] = new Channel(x, stream.ReadSingle(), stream.ReadByte() != 0);
+                tracks[channel] = new Channel(x, stream.ReadSingle(), stream.ReadByte() != 0);
             }
             if (ChannelCount == 0) {
                 ChannelCount = trackCount;
             }
+            Channels = new Channel[ChannelCount];
+            Array.Copy(tracks, Channels, ChannelCount);
 
             ObjectPositions = new Vector3[ChannelCount];
             for (int i = 0; i < ChannelCount; i++) {
-                ObjectPositions[i] = channels[i].SpatialPos;
+                ObjectPositions[i] = Channels[i].SpatialPos;
             }
 
             SampleRate = stream.ReadInt32();

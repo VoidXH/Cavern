@@ -5,5 +5,21 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              mc:Ignorable="d"
              d:DesignWidth="800" d:DesignHeight="450">
-    <Image Name="image" x:FieldModifier="protected"/>
+    <Grid>
+        <Image Name="image" x:FieldModifier="protected"/>
+        <Border x:Name="legendBorder" Background="#80000000" CornerRadius="3" Padding="6,3" Margin="8"
+                VerticalAlignment="Top" HorizontalAlignment="Right"
+                Visibility="Collapsed">
+            <ItemsControl x:Name="legend" Visibility="Collapsed">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Orientation="Horizontal" Margin="0,1">
+                            <Rectangle Width="12" Height="12" Fill="{Binding Swatch}" VerticalAlignment="Center"/>
+                            <TextBlock Text="{Binding Name}" Margin="5,0,0,0" Foreground="White"/>
+                        </StackPanel>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </Border>
+    </Grid>
 </UserControl>
