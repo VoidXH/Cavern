@@ -1,4 +1,4 @@
-﻿using Cavern.Format.FilterSet.Measurements;
+﻿using Cavern.Format.Measurements;
 
 using Test.Cavern.QuickEQ.Consts;
 

@@ -175,7 +175,10 @@ namespace Cavern.Format.FilterSet {
             return result;
         }
 
-        static ReferenceChannel MapReference(string commandId) {
+        /// <summary>
+        /// Get the <see cref="ReferenceChannel"/> for an Audyssey MultEQ XT32 channel <paramref name="commandId"/>.
+        /// </summary>
+        public static ReferenceChannel MapReference(string commandId) {
             if (string.IsNullOrEmpty(commandId)) {
                 return ReferenceChannel.Unknown;
             }
@@ -201,6 +204,8 @@ namespace Cavern.Format.FilterSet {
                 "CH" => ReferenceChannel.TopFrontCenter,
                 "TML" => ReferenceChannel.TopSideLeft,
                 "TMR" => ReferenceChannel.TopSideRight,
+                "FWL" => ReferenceChannel.WideLeft,
+                "FWR" => ReferenceChannel.WideRight,
                 "RHL" => ReferenceChannel.TopRearLeft,
                 "RHR" => ReferenceChannel.TopRearRight,
                 "TS" => ReferenceChannel.GodsVoice,
