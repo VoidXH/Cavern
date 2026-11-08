@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Threading;
 
 using Cavern.Format.Exceptions;
@@ -18,6 +18,11 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         /// Number of full bandwidth input channels.
         /// </summary>
         public int ChannelCount { get; private set; }
+
+        /// <summary>
+        /// Whether a phase shift should be applied to the last two input channels.
+        /// </summary>
+        public bool LastPairPhaseShift { get; private set; }
 
         /// <summary>
         /// Number of rendered dynamic objects.
@@ -54,6 +59,7 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
                 throw new UnsupportedFeatureException("joc_dmx_config_idx");
             }
             ChannelCount = (downmixConfig == 0 || downmixConfig == 3) ? 5 : 7;
+            LastPairPhaseShift = downmixConfig >= 3;
             ObjectCount = extractor.Read(6) + 1;
             UpdateCache();
             if (extractor.Read(3) != 0) {
@@ -68,7 +74,7 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
             int gainPower = extractor.Read(3);
             Gain = 1 + (extractor.Read(5) / 32f) * MathF.Pow(2, gainPower - 4);
             extractor.Skip(10); // Sequence counter
-            for (int obj = 0; obj < ObjectCount; ++obj) {
+            for (int obj = 0; obj < ObjectCount; obj++) {
                 if (ObjectActive[obj] = extractor.ReadBit()) {
                     bandsIndex[obj] = (byte)extractor.Read(3);
                     bands[obj] = JointObjectCodingTables.joc_num_bands[bandsIndex[obj]];
@@ -116,7 +122,7 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
                         int[][][] objMatrix = jocMatrix[obj];
                         for (int dp = 0; dp < dataPoints[obj]; ++dp) {
                             int[][] dpMatrix = objMatrix[dp];
-                            for (int ch = 0; ch < ChannelCount; ++ch) {
+                            for (int ch = 0; ch < ChannelCount; ch++) {
                                 int[] chMatrix = dpMatrix[ch];
                                 for (int pb = 0; pb < bands[obj]; ++pb) {
                                     chMatrix[pb] = HuffmanDecode(codeTable, extractor);

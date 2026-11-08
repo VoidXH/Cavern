@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 
 using Cavern.Format.Common;
 
@@ -12,7 +12,8 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
                 new ReadableMetadataHeader("Joint Object Coding header", new[] {
                     new ReadableMetadataField("joc_num_channels", "Number of channels in the JOC downmix", ChannelCount),
                     new ReadableMetadataField("joc_num_objects", "Number of rendered dynamic objects", ObjectCount),
-                    new ReadableMetadataField("joc_clipgain", "Multiplier for the output signal's amplitude", Gain)
+                    new ReadableMetadataField("joc_clipgain", "Multiplier for the output signal's amplitude", Gain),
+                    new ReadableMetadataField("Bed phase shift", "Phase shift should be applied to the last two input channels", LastPairPhaseShift),
                 })
             };
             for (int i = 0; i < ObjectCount; i++) {

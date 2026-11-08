@@ -1,7 +1,8 @@
-﻿using System;
+using System;
 using System.Runtime.CompilerServices;
 using System.Threading;
 
+using Cavern.Filters;
 using Cavern.Utilities;
 
 namespace Cavern.Format.Decoders.EnhancedAC3 {
@@ -45,6 +46,11 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         readonly QuadratureMirrorFilterBank[] converters;
 
         /// <summary>
+        /// Applies phase shifting to the last two channels if the JOC indicates so.
+        /// </summary>
+        Filter[] phaseShift;
+
+        /// <summary>
         /// Channels to objects matrix.
         /// </summary>
         float[][][][] mixMatrix;
@@ -66,15 +72,25 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
             timeslotCache = new float[objects][];
             results = new (float[], float[])[maxChannels];
             qmfbCache = new (float[], float[])[objects];
-            for (int obj = 0; obj < objects; ++obj) {
+            for (int obj = 0; obj < objects; obj++) {
                 timeslotCache[obj] = new float[QuadratureMirrorFilterBank.subbands];
                 qmfbCache[obj] = (new float[QuadratureMirrorFilterBank.subbands], new float[QuadratureMirrorFilterBank.subbands]);
             }
 
             int converterCount = Math.Max(maxChannels, objects);
             converters = new QuadratureMirrorFilterBank[converterCount];
-            for (int i = 0; i < converterCount; ++i) {
+            for (int i = 0; i < converterCount; i++) {
                 converters[i] = new QuadratureMirrorFilterBank();
+            }
+
+            // TODO: Use a phase shifter filter when we have one with no latency
+            if (joc.LastPairPhaseShift) {
+                phaseShift ??= new Filter[2] {
+                    new BypassFilter("JOC surround compensation"),
+                    new BypassFilter("JOC surround compensation")
+                };
+            } else if (phaseShift != null) {
+                phaseShift = null;
             }
         }
 
@@ -86,10 +102,17 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
                 mixMatrix = joc.GetMixingMatrices(frameSize);
             }
 
+            if (phaseShift != null) {
+                int startChannel = joc.ChannelCount - 2;
+                for (int ch = startChannel; ch < joc.ChannelCount; ch++) {
+                    phaseShift[ch - startChannel].Process(input[ch]);
+                }
+            }
+
             // Forward transformations
             int runs = joc.ChannelCount;
             taskWaiter.Reset();
-            for (int ch = 0; ch < joc.ChannelCount; ++ch) {
+            for (int ch = 0; ch < joc.ChannelCount; ch++) {
                 ThreadPool.QueueUserWorkItem(channel => {
                     int ch = (int)channel;
                     fixed (float* pInput = input[ch]) {
@@ -110,7 +133,7 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
             int objects = joc.ObjectCount;
             runs = objects;
             taskWaiter.Reset();
-            for (int obj = 0; obj < objects; ++obj) {
+            for (int obj = 0; obj < objects; obj++) {
                 ThreadPool.QueueUserWorkItem(objectIndex => {
                     int obj = (int)objectIndex;
                     if (CavernAmp.Available) {
