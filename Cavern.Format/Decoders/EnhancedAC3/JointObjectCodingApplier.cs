@@ -82,16 +82,6 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
             for (int i = 0; i < converterCount; i++) {
                 converters[i] = new QuadratureMirrorFilterBank();
             }
-
-            // TODO: Use a phase shifter filter when we have one with no latency
-            if (joc.LastPairPhaseShift) {
-                phaseShift ??= new Filter[2] {
-                    new BypassFilter("JOC surround compensation"),
-                    new BypassFilter("JOC surround compensation")
-                };
-            } else if (phaseShift != null) {
-                phaseShift = null;
-            }
         }
 
         /// <summary>
@@ -102,11 +92,18 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
                 mixMatrix = joc.GetMixingMatrices(frameSize);
             }
 
-            if (phaseShift != null) {
+            if (joc.LastPairPhaseShift) {
+                // TODO: Use a phase shifter filter when we have one with no latency
+                phaseShift ??= new Filter[] {
+                    new BypassFilter("JOC surround compensation"),
+                    new BypassFilter("JOC surround compensation")
+                };
                 int startChannel = joc.ChannelCount - 2;
                 for (int ch = startChannel; ch < joc.ChannelCount; ch++) {
                     phaseShift[ch - startChannel].Process(input[ch]);
                 }
+            } else if (phaseShift != null) {
+                phaseShift = null;
             }
 
             // Forward transformations
