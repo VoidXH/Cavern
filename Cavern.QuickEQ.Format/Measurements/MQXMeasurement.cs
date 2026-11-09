@@ -18,7 +18,7 @@ namespace Cavern.Format.Measurements {
         /// <summary>
         /// Which channels are present in this format and with what name.
         /// </summary>
-        public (Channel channel, string name)[] Channels { get; private set; }
+        public override (Channel channel, string name)[] Channels { get; protected set; }
 
         /// <summary>
         /// Represents a MultEQ-X measurement file containing impulse responses for multiple channels.

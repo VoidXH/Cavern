@@ -10,6 +10,11 @@ namespace Cavern.Format.Measurements {
     /// </summary>
     public class LAFMeasurement : Measurement {
         /// <summary>
+        /// Which channels are present in this format and with what name.
+        /// </summary>
+        public override (Channel channel, string name)[] Channels { get; protected set; }
+
+        /// <summary>
         /// Represents a Cavern measurement file.
         /// </summary>
         public LAFMeasurement() { }
@@ -27,12 +32,16 @@ namespace Cavern.Format.Measurements {
             int channels = GetChannelCount(data);
             int measurements = data.Channels / channels;
             int samplesPerCh = data.Length / channels;
+            ReferenceChannel[] references = reader.GetRenderer().GetChannels();
+            Channels = new (Channel, string)[channels * measurements];
             Positions = new MeasuredPosition[measurements];
             for (int measurement = 0; measurement < measurements; measurement++) {
                 float[][] impulseResponses = new float[channels][];
                 for (int channel = 0; channel < channels; channel++) {
                     impulseResponses[channel] = new float[samplesPerCh];
                     Array.Copy(data[channel + measurement * channels], samplesPerCh * channel, impulseResponses[channel], 0, samplesPerCh);
+                    ChannelPrototype prototype = ChannelPrototype.Mapping[(int)references[channel]];
+                    Channels[measurement * channels + channel] = (new Channel(prototype), ChannelPrototype.GetNames(new[] { references[channel] })[0]);
                 }
                 Positions[measurement] = new MeasuredPosition(measurement, new MultichannelWaveform(impulseResponses), SampleRate, true);
             }

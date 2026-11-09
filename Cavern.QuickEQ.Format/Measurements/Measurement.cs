@@ -14,5 +14,10 @@ namespace Cavern.Format.Measurements {
         /// Measurements grouped by microphone position, in the order the positions appear in the file.
         /// </summary>
         public MeasuredPosition[] Positions { get; protected set; }
+
+        /// <summary>
+        /// Which channels are present in this format and with what name.
+        /// </summary>
+        public abstract (Channel channel, string name)[] Channels { get; protected set; }
     }
 }
