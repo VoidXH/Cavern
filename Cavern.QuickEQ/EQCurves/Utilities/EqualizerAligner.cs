@@ -1,4 +1,5 @@
 using Cavern.QuickEQ.Equalization;
+using Cavern.QuickEQ.Utilities;
 
 namespace Cavern.QuickEQ.EQCurves.Utilities {
     /// <summary>
@@ -6,24 +7,9 @@ namespace Cavern.QuickEQ.EQCurves.Utilities {
     /// </summary>
     public sealed class EqualizerAligner {
         /// <summary>
-        /// First frequency considered for alignment on main channels.
+        /// Frequency range limits considered for alignment on the main and LFE channels.
         /// </summary>
-        public double MinMainFrequency { get; set; } = 100;
-
-        /// <summary>
-        /// Last frequency considered for alignment on main channels.
-        /// </summary>
-        public double MaxMainFrequency { get; set; } = 1000;
-
-        /// <summary>
-        /// First frequency considered for alignment on LFE channels.
-        /// </summary>
-        public double MinLFEFrequency { get; set; } = 40;
-
-        /// <summary>
-        /// Last frequency considered for alignment on LFE channels.
-        /// </summary>
-        public double MaxLFEFrequency { get; set; } = 80;
+        public FrequencyRangeLimit FrequencyLimits { get; set; } = new FrequencyRangeLimit(100, 1000, 40, 80);
 
         /// <summary>
         /// Offset each channel to 0 dB in the stable range (main or LFE depending on channel layout).
@@ -32,13 +18,8 @@ namespace Cavern.QuickEQ.EQCurves.Utilities {
         public Equalizer[] Align(Equalizer[] source) {
             for (int i = 0; i < source.Length; i++) {
                 Equalizer channel = (Equalizer)source[i].Clone();
-                double average;
-                if (!Channel.IsLFE(i, source.Length)) {
-                    average = channel.GetAverageLevel(10, MinMainFrequency, MaxMainFrequency);
-                } else {
-                    average = channel.GetAverageLevel(10, MinLFEFrequency, MaxLFEFrequency);
-                }
-                channel.Offset(-average);
+                (double min, double max) = FrequencyLimits.GetLimits(Channel.IsLFE(i, source.Length));
+                channel.Offset(-channel.GetAverageLevel(10, min, max));
                 source[i] = channel;
             }
             return source;
