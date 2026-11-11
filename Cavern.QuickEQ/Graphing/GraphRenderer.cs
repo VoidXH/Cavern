@@ -55,10 +55,9 @@ namespace Cavern.QuickEQ.Graphing {
         public float Padding {
             get {
                 // The default padding is just for preventing the frame overwriting the curve
-                if (padding == 0 && Overlay is Frame frame) {
-                    padding = dynamicRange - dynamicRange * Height / (Height + 2 * frame.Width);
-                }
-                return padding;
+                return padding == 0 && Overlay is Frame frame
+                    ? dynamicRange - dynamicRange * Height / (Height + 2 * frame.Width)
+                    : padding;
             }
             set {
                 padding = value;
@@ -155,11 +154,8 @@ namespace Cavern.QuickEQ.Graphing {
 
         /// <inheritdoc/>
         protected override void ReRender() {
-            int c = curves.Count;
-            if (c == 0) {
-                for (int i = 0; i < c; i++) {
-                    curves[i].ReRender();
-                }
+            for (int i = 0, c = curves.Count; i < c; i++) {
+                curves[i].ReRender();
             }
             DrawAll();
         }

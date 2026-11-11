@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 using Cavern.QuickEQ.Equalization;
@@ -19,6 +20,7 @@ namespace Cavern.QuickEQ.Graphing {
             Peak = 1;
             DynamicRange = 2;
             Logarithmic = false;
+            StartFrequency = 0;
             EndFrequency = 1;
         }
 
@@ -35,7 +37,7 @@ namespace Cavern.QuickEQ.Graphing {
                 bands.Add(new Band(i, scaled[i]));
             }
             Equalizer display = new Equalizer(bands, true);
-            EndFrequency = scaled.Length;
+            EndFrequency = scaled.Length - 1; // The last sample's index, so the render grid lands exactly on the sample bands.
             AddCurve(display, color);
         }
 
@@ -47,7 +49,17 @@ namespace Cavern.QuickEQ.Graphing {
 
         /// <inheritdoc/>
         public override void Normalize() {
-            base.Normalize();
+            double curvePeak = double.NegativeInfinity;
+            for (int i = 0, c = Curves.Count; i < c; i++) {
+                IReadOnlyList<Band> bands = Curves[i].Curve.Bands;
+                for (int band = 0; band < bands.Count; band++) {
+                    double absGain = Math.Abs(bands[band].Gain);
+                    if (curvePeak < absGain) {
+                        curvePeak = absGain;
+                    }
+                }
+            }
+            Peak = double.IsNegativeInfinity(curvePeak) ? 0 : (float)curvePeak;
             DynamicRange = 2f * Peak;
             ReRenderFull();
         }

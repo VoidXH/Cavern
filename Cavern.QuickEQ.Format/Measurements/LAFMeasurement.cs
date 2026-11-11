@@ -1,7 +1,10 @@
 using System;
 using System.IO;
+
 using Cavern.Channels;
 using Cavern.QuickEQ.Measurement;
+using Cavern.QuickEQ.SignalGeneration;
+using Cavern.Utilities;
 using Cavern.Waveforms;
 
 namespace Cavern.Format.Measurements {
@@ -20,10 +23,18 @@ namespace Cavern.Format.Measurements {
         public LAFMeasurement() { }
 
         /// <summary>
+        /// Import a Cavern measurement file using the default QuickEQ sweep (20 Hz to 20 kHz).
+        /// </summary>
+        /// <param name="path">Path to the LAF measurement file</param>
+        public LAFMeasurement(string path) : this(path, 20, 20000) { }
+
+        /// <summary>
         /// Import a Cavern measurement file.
         /// </summary>
         /// <param name="path">Path to the LAF measurement file</param>
-        public LAFMeasurement(string path) {
+        /// <param name="sweepStartFreq">Start frequency in Hz of the sweep the excitements were recorded with</param>
+        /// <param name="sweepEndFreq">End frequency in Hz of the sweep the excitements were recorded with</param>
+        public LAFMeasurement(string path, double sweepStartFreq, double sweepEndFreq) {
             using AudioReader reader = AudioReader.Open(path);
             reader.ReadHeader();
             SampleRate = reader.SampleRate;
@@ -32,14 +43,17 @@ namespace Cavern.Format.Measurements {
             int channels = GetChannelCount(data);
             int measurements = data.Channels / channels;
             int samplesPerCh = data.Length / channels;
+            float[] sweep = SweepGenerator.Frame(SweepGenerator.Exponential(sweepStartFreq, sweepEndFreq, samplesPerCh / 2, SampleRate));
+            using FFTCache cache = new FFTCache(samplesPerCh);
             ReferenceChannel[] references = reader.GetRenderer().GetChannels();
             Channels = new (Channel, string)[channels * measurements];
             Positions = new MeasuredPosition[measurements];
             for (int measurement = 0; measurement < measurements; measurement++) {
                 float[][] impulseResponses = new float[channels][];
                 for (int channel = 0; channel < channels; channel++) {
-                    impulseResponses[channel] = new float[samplesPerCh];
-                    Array.Copy(data[channel + measurement * channels], samplesPerCh * channel, impulseResponses[channel], 0, samplesPerCh);
+                    float[] recording = new float[samplesPerCh];
+                    Array.Copy(data[channel + measurement * channels], samplesPerCh * channel, recording, 0, samplesPerCh);
+                    impulseResponses[channel] = Cavern.Utilities.Measurements.GetRealPart(Cavern.Utilities.Measurements.GetImpulseResponse(sweep, recording, cache));
                     ChannelPrototype prototype = ChannelPrototype.Mapping[(int)references[channel]];
                     Channels[measurement * channels + channel] = (new Channel(prototype), ChannelPrototype.GetNames(new[] { references[channel] })[0]);
                 }
