@@ -6,7 +6,6 @@
 	<system:String x:Key="OpCfg">_Konfigurációs fájl megnyitása...</system:String>
     <system:String x:Key="OpSaA">Konfigurációs fájl mentése _ehhez</system:String>
     <system:String x:Key="OpChs">_Csatornák kiválasztása...</system:String>
-    <system:String x:Key="OpSet">_Beállítások...</system:String>
 
     <system:String x:Key="MFilt">_Szűrők</system:String>
     <system:String x:Key="FShif">_Párhuzamos hozzáadás (Shift nyomva tartásával azonos)</system:String>

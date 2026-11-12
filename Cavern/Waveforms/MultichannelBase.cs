@@ -38,6 +38,14 @@ namespace Cavern.Waveforms {
         }
 
         /// <summary>
+        /// The length of a single channel's <see cref="data"/>.
+        /// </summary>
+        public long LongLength {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => data != null && data.LongLength > 0 ? data[0].LongLength : 0;
+        }
+
+        /// <summary>
         /// Each channel's samples or other stored data.
         /// </summary>
         protected readonly T[][] data;

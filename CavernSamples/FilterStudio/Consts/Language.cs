@@ -16,11 +16,6 @@ namespace FilterStudio.Consts {
         public static ResourceDictionary GetMainWindowStrings() => mainWindowCache ??= ResourceUtils.GetTranslationFor("MainWindowStrings", supported);
 
         /// <summary>
-        /// Get the <see cref="SettingsDialog"/>'s translation.
-        /// </summary>
-        public static ResourceDictionary GetSettingsDialogStrings() => settingsDialogCache ??= ResourceUtils.GetTranslationFor("SettingsDialogStrings", supported);
-
-        /// <summary>
         /// Get the <see cref="ConvolutionLengthDialog"/>'s translation.
         /// </summary>
         public static ResourceDictionary GetConvolutionLengthDialogStrings() =>
@@ -45,11 +40,6 @@ namespace FilterStudio.Consts {
         /// Languages supported that are not the default English.
         /// </summary>
         static readonly string[] supported = ["hu-HU", "zh-CN"];
-
-        /// <summary>
-        /// The loaded translation of the <see cref="SettingsDialog"/> for reuse.
-        /// </summary>
-        static ResourceDictionary settingsDialogCache;
 
         /// <summary>
         /// The loaded translation of the <see cref="MainWindow"/> for reuse.

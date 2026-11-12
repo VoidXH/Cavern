@@ -162,6 +162,9 @@ namespace Cavern.QuickEQ.Equalization {
         /// </summary>
         public void Optimize() {
             int c = bands.Count;
+            if (c <= 2) {
+                return;
+            }
             List<Band> newBands = new List<Band>(c) {
                 bands[0]
             };

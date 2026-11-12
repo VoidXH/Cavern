@@ -57,11 +57,61 @@ namespace Cavern.QuickEQ.Equalization {
         public static Equalizer Max(params Equalizer[] sources) => MinMax(sources, false);
 
         /// <summary>
-        /// Get the minimum at each band for multiple equalizers.
+        /// Get the minimum at each band for multiple <see cref="Equalizer"/>s.
         /// </summary>
         /// <remarks>All <paramref name="sources"/> must have an equal number of bands at the same frequencies.</remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Equalizer Min(params Equalizer[] sources) => MinMax(sources, true);
+
+        /// <summary>
+        /// Get the gain-space (linear) sum of multiple <see cref="Equalizer"/> curves.
+        /// </summary>
+        /// <param name="sources">Curves to sum together</param>
+        /// <remarks>All <paramref name="sources"/> must have an equal number of bands at the same frequencies.</remarks>
+        public static Equalizer SumGains(params Equalizer[] sources) {
+            if (sources.Length == 0) {
+                return new Equalizer();
+            }
+
+            double[] bands = new double[sources[0].Bands.Count];
+            for (int i = 0; i < sources.Length; i++) {
+                IReadOnlyList<Band> source = sources[i].Bands;
+                for (int j = 0; j < bands.Length; j++) {
+                    bands[j] += QMath.DbToGain(source[j].Gain);
+                }
+            }
+
+            List<Band> result = new List<Band>(bands.Length);
+            for (int i = 0; i < bands.Length; i++) {
+                result.Add(new Band(sources[0].Bands[i].Frequency, QMath.GainToDb(bands[i])));
+            }
+            return new Equalizer(result, true);
+        }
+
+        /// <summary>
+        /// Get the gain-space (linear) sum of multiple <see cref="Equalizer"/> curves, assuming power gains as decibel values.
+        /// </summary>
+        /// <param name="sources">Curves to sum together</param>
+        /// <remarks>All <paramref name="sources"/> must have an equal number of bands at the same frequencies.</remarks>
+        public static Equalizer SumPowerGains(params Equalizer[] sources) {
+            if (sources.Length == 0) {
+                return new Equalizer();
+            }
+
+            double[] bands = new double[sources[0].Bands.Count];
+            for (int i = 0; i < sources.Length; i++) {
+                IReadOnlyList<Band> source = sources[i].Bands;
+                for (int j = 0; j < bands.Length; j++) {
+                    bands[j] += QMath.DbPowerToGain(source[j].Gain);
+                }
+            }
+
+            List<Band> result = new List<Band>(bands.Length);
+            for (int i = 0; i < bands.Length; i++) {
+                result.Add(new Band(sources[0].Bands[i].Frequency, QMath.GainToDbPower(bands[i])));
+            }
+            return new Equalizer(result, true);
+        }
 
         /// <summary>
         /// Get the average gains of multiple equalizers by a custom averaging function.

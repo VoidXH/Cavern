@@ -2,6 +2,7 @@
 using System.Runtime.CompilerServices;
 
 using Cavern.Utilities;
+using Cavern.Utilities.Enums;
 
 namespace Cavern.Waveforms {
     /// <summary>
@@ -114,6 +115,18 @@ namespace Cavern.Waveforms {
         /// Set the peak signal across all channels to 1 (0 dB FS).
         /// </summary>
         public void Normalize() => Gain(1 / GetPeak());
+
+        /// <summary>
+        /// Get a resampled version of this signal with a new sample rate.
+        /// </summary>
+        public MultichannelWaveform Resample(int oldSampleRate, int newSampleRate, ResampleAlgorithm algorithm) {
+            float[][] resampled = new float[Channels][];
+            int samples = (int)(LongLength * newSampleRate / oldSampleRate);
+            for (int ch = 0; ch < Channels; ch++) {
+                resampled[ch] = Cavern.Utilities.Resample.Fixed(data[ch], samples, algorithm);
+            }
+            return new MultichannelWaveform(resampled);
+        }
 
         /// <summary>
         /// Split this signal to blocks of a given <paramref name="blockSize"/> on each channel.

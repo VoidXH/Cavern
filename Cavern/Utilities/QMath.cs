@@ -38,6 +38,18 @@ namespace Cavern.Utilities {
         public static float DbToGain(float gain) => MathF.Pow(10, gain * .05f);
 
         /// <summary>
+        /// Convert decibels to voltage gain.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static double DbPowerToGain(double gain) => Math.Pow(10, gain * .1);
+
+        /// <summary>
+        /// Convert decibels to voltage gain.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static float DbPowerToGain(float gain) => MathF.Pow(10, gain * .1f);
+
+        /// <summary>
         /// Convert voltage gain to decibels.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -48,6 +60,18 @@ namespace Cavern.Utilities {
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float GainToDb(float gain) => 20 * MathF.Log10(gain);
+
+        /// <summary>
+        /// Convert voltage gain to decibels (power scale).
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static double GainToDbPower(double gain) => 10 * Math.Log10(gain);
+
+        /// <summary>
+        /// Convert voltage gain to decibels (power scale).
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static float GainToDbPower(float gain) => 10 * MathF.Log10(gain);
 
         /// <summary>
         /// Counts the leading zeros in a byte. The byte is contained in an integer, but in byte limits.

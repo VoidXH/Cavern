@@ -164,15 +164,5 @@ namespace FilterStudio {
                 }
             }
         }
-
-        /// <summary>
-        /// Open the settings window.
-        /// </summary>
-        void OpenSettings(object _, RoutedEventArgs e) {
-            SettingsDialog dialog = new();
-            if (dialog.ShowDialog().Value) {
-                settingChanged = true;
-            }
-        }
     }
 }

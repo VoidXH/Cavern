@@ -5,6 +5,7 @@ using Cavern.Channels;
 using Cavern.QuickEQ.Measurement;
 using Cavern.QuickEQ.SignalGeneration;
 using Cavern.Utilities;
+using Cavern.Utilities.Enums;
 using Cavern.Waveforms;
 
 namespace Cavern.Format.Measurements {
@@ -23,10 +24,18 @@ namespace Cavern.Format.Measurements {
         public LAFMeasurement() { }
 
         /// <summary>
-        /// Import a Cavern measurement file using the default QuickEQ sweep (20 Hz to 20 kHz).
+        /// Import a Cavern measurement file using the default QuickEQ sweep (20 Hz to 20 kHz) and no resampling.
         /// </summary>
         /// <param name="path">Path to the LAF measurement file</param>
-        public LAFMeasurement(string path) : this(path, 20, 20000) { }
+        public LAFMeasurement(string path) : this(path, 20, 20000, -1) { }
+
+        /// <summary>
+        /// Import a Cavern measurement file with no resampling.
+        /// </summary>
+        /// <param name="path">Path to the LAF measurement file</param>
+        /// <param name="sweepStartFreq">Start frequency in Hz of the sweep the excitements were recorded with</param>
+        /// <param name="sweepEndFreq">End frequency in Hz of the sweep the excitements were recorded with</param>
+        public LAFMeasurement(string path, double sweepStartFreq, double sweepEndFreq) : this(path, sweepStartFreq, sweepEndFreq, -1) { }
 
         /// <summary>
         /// Import a Cavern measurement file.
@@ -34,11 +43,17 @@ namespace Cavern.Format.Measurements {
         /// <param name="path">Path to the LAF measurement file</param>
         /// <param name="sweepStartFreq">Start frequency in Hz of the sweep the excitements were recorded with</param>
         /// <param name="sweepEndFreq">End frequency in Hz of the sweep the excitements were recorded with</param>
-        public LAFMeasurement(string path, double sweepStartFreq, double sweepEndFreq) {
+        /// <param name="resample">Import the measurement at this sample rate, -1 skips it</param>
+        public LAFMeasurement(string path, double sweepStartFreq, double sweepEndFreq, int resample) {
             using AudioReader reader = AudioReader.Open(path);
             reader.ReadHeader();
             SampleRate = reader.SampleRate;
             MultichannelWaveform data = new MultichannelWaveform(reader.ReadMultichannelAfterHeader());
+
+            if (resample != -1) {
+                data = data.Resample(SampleRate, resample, ResampleAlgorithm.CatmullRom);
+                SampleRate = resample;
+            }
 
             int channels = GetChannelCount(data);
             int measurements = data.Channels / channels;

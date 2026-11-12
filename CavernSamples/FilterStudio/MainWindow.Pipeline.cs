@@ -151,16 +151,6 @@ namespace FilterStudio {
             }
 
             CavernFilterStudioConfigurationFile config = new(pipeline.Source.SplitPoints[uid]);
-            if (Settings.Default.graphicEQLinearPhase) {
-                IEnumerable<IFilterGraphNode> rootNodes = config.InputChannels.SelectArray(x => x.root);
-                HashSet<IFilterGraphNode> allNodes = FilterGraphNodeUtils.MapGraph(rootNodes);
-                foreach (IFilterGraphNode node in allNodes) {
-                    if (node.Filter is GraphicEQ graphicEQ) {
-                        node.Filter = new FastConvolver(graphicEQ.Equalizer.GetLinearConvolution(SampleRate, 65536), SampleRate, 0);
-                    }
-                }
-            }
-
             ConfigurationFileSimulator simulator = new(config);
             MultichannelWaveform simulation = simulator.Simulate(channels.SelectedChannels, 65536);
 

@@ -70,17 +70,5 @@ namespace FilterStudio.Resources {
                 this["sampleRate"] = value;
             }
         }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool graphicEQLinearPhase {
-            get {
-                return ((bool)(this["graphicEQLinearPhase"]));
-            }
-            set {
-                this["graphicEQLinearPhase"] = value;
-            }
-        }
     }
 }

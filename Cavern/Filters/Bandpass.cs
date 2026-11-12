@@ -71,7 +71,7 @@ namespace Cavern.Filters {
         protected override void Reset(float cosW0, float alpha, float divisor) {
             b1 = 0;
             b2 = -alpha * divisor;
-            b0 = -b2 * (float)Math.Pow(10, gain * .05f);
+            b0 = -b2 * (float)QMath.DbToGain(gain);
             a1 = -2 * cosW0 * divisor;
             a2 = (1 - alpha) * divisor;
         }

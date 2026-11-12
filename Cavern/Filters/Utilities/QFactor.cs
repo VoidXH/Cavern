@@ -1,5 +1,7 @@
 ﻿using System;
 
+using Cavern.Utilities;
+
 namespace Cavern.Filters.Utilities {
     /// <summary>
     /// Q-factor conversion utilities.
@@ -29,7 +31,7 @@ namespace Cavern.Filters.Utilities {
         /// <param name="slope">Filter steepness factor</param>
         /// <param name="gain">Filter gain in decibels</param>
         public static double FromSlope(double slope, double gain) {
-            double a = Math.Pow(10, gain * .05f);
+            double a = QMath.DbToGain(gain);
             return 1.0 / Math.Sqrt((a + 1 / a) * (1 / slope - 1) + 2);
         }
 
@@ -39,7 +41,7 @@ namespace Cavern.Filters.Utilities {
         /// <param name="slope">Filter steepness in decibels</param>
         /// <param name="gain">Filter gain in decibels</param>
         public static double FromSlopeDecibels(double slope, double gain) {
-            double a = Math.Pow(10, gain * .05f);
+            double a = QMath.DbToGain(gain);
             return 1.0 / Math.Sqrt((a + 1 / a) * (1 / Math.Abs(slope / gain) - 1) + 2);
         }
 
@@ -59,7 +61,7 @@ namespace Cavern.Filters.Utilities {
         /// <param name="qFactor">Filter Q-factor</param>
         /// <param name="gain">Filter gain in decibels</param>
         public static double ToSlope(double qFactor, double gain) {
-            double a = Math.Pow(10, gain * .05f);
+            double a = QMath.DbToGain(gain);
             return 1.0 / ((1 / (qFactor * qFactor) - 2) / (a + 1 / a) + 1);
         }
 

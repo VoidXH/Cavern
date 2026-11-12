@@ -31,6 +31,16 @@ namespace Cavern.Filters {
         Equalizer equalizer;
 
         /// <summary>
+        /// Checks or modifies the filter for linear phase behavior instead of being a minimum phase filter.
+        /// </summary>
+        public bool LinearPhase {
+            get => Impulse[0] < Impulse[Impulse.Length / 2];
+            set => Impulse = value
+                ? equalizer.GetLinearConvolution(SampleRate, Length)
+                : equalizer.GetConvolution(SampleRate, Length);
+        }
+
+        /// <summary>
         /// Get a clone of the filter's impulse response.
         /// </summary>
         [IgnoreDataMember]

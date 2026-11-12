@@ -17,8 +17,12 @@ namespace Cavern.Filters {
         /// <inheritdoc/>
         [DisplayName("Gain (dB)")]
         public double GainValue {
-            get => 20 * Math.Log10(Math.Abs(gainValue));
-            set => gainValue = (float)Math.Pow(10, value * .05);
+            get => QMath.GainToDb(Math.Abs(gainValue));
+            set {
+                bool wasInverted = Invert;
+                float inGain = (float)QMath.DbToGain(value);
+                gainValue = wasInverted ? -inGain : inGain;
+            }
         }
 
         /// <inheritdoc/>

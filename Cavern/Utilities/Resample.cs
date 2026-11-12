@@ -1,4 +1,6 @@
-﻿namespace Cavern.Utilities {
+﻿using Cavern.Utilities.Enums;
+
+namespace Cavern.Utilities {
     /// <summary>
     /// Audio resampling functions.
     /// </summary>
@@ -18,6 +20,22 @@
             } else {
                 return CatmullRom(samples, to);
             }
+        }
+
+        /// <summary>
+        /// Resamples a single channel with a fixed algorithm.
+        /// </summary>
+        /// <param name="samples">Samples of the source channel</param>
+        /// <param name="to">New sample count</param>
+        /// <param name="algorithm">Resampling algorithm to use</param>
+        /// <returns>Resampled version of the input channel</returns>
+        public static float[] Fixed(float[] samples, int to, ResampleAlgorithm algorithm) {
+            return algorithm switch {
+                ResampleAlgorithm.NearestNeighbour => NearestNeighbour(samples, to),
+                ResampleAlgorithm.Lerp => Lerp(samples, to),
+                ResampleAlgorithm.CatmullRom => CatmullRom(samples, to),
+                _ => NearestNeighbour(samples, to)
+            };
         }
 
         /// <summary>

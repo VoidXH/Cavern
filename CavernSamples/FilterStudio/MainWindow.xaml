@@ -28,8 +28,6 @@
                 </MenuItem>
                 <Separator/>
                 <MenuItem Header="{StaticResource OpChs}" Click="SelectChannels"/>
-                <Separator/>
-                <MenuItem Header="{StaticResource OpSet}" Click="OpenSettings"/>
             </MenuItem>
             <MenuItem Header="{StaticResource MFilt}" Style="{StaticResource RootMenuItem}">
                 <MenuItem Name="filterShift" IsCheckable="True" Header="{StaticResource FShif}"/>
