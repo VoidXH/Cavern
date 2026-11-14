@@ -16,11 +16,21 @@ namespace Cavern.QuickEQ.Equalization {
         /// For subtraction instead of addition, use <see cref="AlignTo(Equalizer)"/>.</remarks>
         public void AddCurve(Equalizer other) {
             List<Band> otherBands = other.bands;
-            if (bands.Count != other.bands.Count) {
-                throw new ArraySizeMismatchException(bands.Count, otherBands.Count);
-            }
-
+            ArraySizeMismatchException.ThrowIfNotEqual(bands, otherBands);
             for (int i = 0, c = bands.Count; i < c; i++) {
+                bands[i] += otherBands[i].Gain;
+            }
+            RecalculatePeakGain();
+        }
+
+        /// <summary>
+        /// Add the two <see cref="Equalizer"/>s together, <paramref name="until"/> a given frequency in Hz.
+        /// </summary>
+        /// <remarks>Matching frequencies have to be guaranteed before calling this function with <see cref="HasTheSameFrequenciesAs(Equalizer)"/>.</remarks>
+        public void AddCurve(Equalizer other, double until) {
+            List<Band> otherBands = other.bands;
+            ArraySizeMismatchException.ThrowIfNotEqual(bands, otherBands);
+            for (int i = 0, c = bands.Count; i < c && bands[i].Frequency < until; i++) {
                 bands[i] += otherBands[i].Gain;
             }
             RecalculatePeakGain();
@@ -32,10 +42,7 @@ namespace Cavern.QuickEQ.Equalization {
         /// <remarks>Matching frequencies have to be guaranteed before calling this function with <see cref="HasTheSameFrequenciesAs(Equalizer)"/>.</remarks>
         public void AddCurveLinear(Equalizer other) {
             List<Band> otherBands = other.bands;
-            if (bands.Count != other.bands.Count) {
-                throw new ArraySizeMismatchException(bands.Count, otherBands.Count);
-            }
-
+            ArraySizeMismatchException.ThrowIfNotEqual(bands, otherBands);
             for (int i = 0, c = bands.Count; i < c; i++) {
                 bands[i] = new Band(bands[i].Frequency, QMath.GainToDb(QMath.DbToGain(bands[i].Gain) + QMath.DbToGain(otherBands[i].Gain)));
             }
@@ -107,6 +114,36 @@ namespace Cavern.QuickEQ.Equalization {
             }
             output.Sort();
             return new Equalizer(output.Distinct().ToList(), true);
+        }
+
+        /// <summary>
+        /// Merge this Equalizer with another, summing their gains.
+        /// </summary>
+        /// <remarks>For a faster version when both <see cref="Equalizer"/>s have the same bands, use
+        /// <see cref="AddCurve(Equalizer)"/> for optimization.</remarks>
+        public Equalizer Merge(Equalizer with, double until) {
+            List<Band> output = new List<Band>();
+            MergeOneSide(bands, with, output, until);
+            MergeOneSide(with.Bands, this, output, until);
+            output.Sort();
+            return new Equalizer(output.Distinct().ToList(), true);
+        }
+
+        /// <summary>
+        /// Do one hand side of <see cref="Merge(Equalizer, double)"/>.
+        /// </summary>
+        /// <param name="positions"></param>
+        /// <param name="other"></param>
+        /// <param name="output"></param>
+        /// <param name="until"></param>
+        static void MergeOneSide(IReadOnlyList<Band> positions, Equalizer other, List<Band> output, double until) {
+            for (int band = 0, bandc = positions.Count; band < bandc; band++) {
+                double frequency = positions[band].Frequency;
+                if (frequency > until) {
+                    break;
+                }
+                output.Add(new Band(frequency, positions[band].Gain + other[frequency]));
+            }
         }
     }
 }
