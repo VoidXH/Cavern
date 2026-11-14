@@ -75,13 +75,16 @@ partial class MainWindow {
         BitDepth bits = codec == Codec.PCM_Float ? BitDepth.Float32 : Settings.Default.force24Bit ? BitDepth.Int24 : BitDepth.Int16;
 
         if (codec.IsEnvironmental()) {
-            try {
-                EnvironmentWriter transcoder = EnvironmentWriter.Create(path, codec, environment.Listener, target.Length, bits, target.Renderer);
-                return () => TranscodeTask(target, transcoder);
-            } catch (UnsupportedContainerForWriteException) {
-                Error(language["UnCod"]);
-                return null;
-            }
+            return () => {
+                EnvironmentWriter transcoder;
+                try {
+                    transcoder = EnvironmentWriter.Create(path, codec, environment.Listener, target.Length, bits, target.Renderer);
+                } catch (UnsupportedContainerForWriteException) {
+                    Error(language["UnCod"]);
+                    return;
+                }
+                TranscodeTask(target, transcoder);
+            };
         }
 
         blockSize = CavernizeOutput.GetBlockSize(RenderTarget, environment);
