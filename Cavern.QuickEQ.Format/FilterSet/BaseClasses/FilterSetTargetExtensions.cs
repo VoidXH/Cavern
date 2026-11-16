@@ -32,6 +32,7 @@ namespace Cavern.Format.FilterSet {
             FilterSetTarget.MiniDSPFlexHTx => "MiniDSP Flex HTx",
             FilterSetTarget.MiniDSPTide16 => "MiniDSP Tide16",
             FilterSetTarget.AcurusMuse => "Acurus Muse",
+            FilterSetTarget.DatasatRS20i => "Datasat RS20i",
             FilterSetTarget.Emotiva => "Emotiva",
             FilterSetTarget.MonolithHTP1 => "Monoprice Monolith HTP-1",
             FilterSetTarget.Rotel => "Rotel",

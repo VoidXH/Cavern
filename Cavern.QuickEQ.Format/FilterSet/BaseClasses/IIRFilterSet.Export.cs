@@ -49,7 +49,7 @@ namespace Cavern.Format.FilterSet {
         /// <summary>
         /// Export the filter set for manual per-band import, formatted as a single text to be displayed.
         /// </summary>
-        /// <param name="gainOnly">Don't export the Q factor - this is useful when they are all the same,
+        /// <param name="gainOnly">Don't export the Q factors - this is useful when they are all the same,
         /// like for <see cref="Multiband31FilterSet"/></param>
         protected virtual string Export(bool gainOnly) {
             StringBuilder result = new StringBuilder("Set up the channels according to this configuration.").AppendLine();

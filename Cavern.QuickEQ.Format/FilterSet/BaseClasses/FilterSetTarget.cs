@@ -88,6 +88,10 @@ namespace Cavern.Format.FilterSet {
         /// </summary>
         AcurusMuse,
         /// <summary>
+        /// Datasat RS20i processors.
+        /// </summary>
+        DatasatRS20i,
+        /// <summary>
         /// Emotiva XMC processors.
         /// </summary>
         Emotiva,
