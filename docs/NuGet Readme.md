@@ -25,7 +25,7 @@ self-calibration libraries built on the Cavern engine are also available.
 	* Supported software/hardware for EQ/filter set export:
 	* PC, Mac, and Linux: Equalizer APO, CamillaDSP, AU N-Band EQ
 	* DSP: MiniDSP 2x4 Advanced, 2x4 HD, DDRC-88A, Flex HT(x), Tide16
-	* AVRs and processors: Acurus Muse, Emotiva, Monolith HTP-1, Rotel, StormAudio, Tonewinner AT series, Trinnov, WiiM, Yamaha CX-A, RX, RX-A series
+	* AVRs and processors: Acurus Muse, Datasat RS20i, Emotiva, Monolith HTP-1, Rotel, StormAudio, Tonewinner AT series, Trinnov, WiiM, Yamaha CX-A, RX, RX-A series
 	* Amplifiers: Behringer NX series
 	* Others: Audyssey MultEQ-X, Dirac Live, JL Audio TüN, Roon, Wavelet
 * Direction and distance virtualization for headphones
