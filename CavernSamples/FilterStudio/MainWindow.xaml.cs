@@ -115,6 +115,39 @@ namespace FilterStudio {
         }
 
         /// <summary>
+        /// Set application language to English.
+        /// </summary>
+        void LanguageEnglish(object _, RoutedEventArgs __) => SetLanguage("en-US");
+
+        /// <summary>
+        /// Set application language to Hungarian.
+        /// </summary>
+        void LanguageHungarian(object _, RoutedEventArgs __) => SetLanguage("hu-HU");
+
+        /// <summary>
+        /// Set application language to Chinese.
+        /// </summary>
+        void LanguageChinese(object _, RoutedEventArgs __) => SetLanguage("zh-CN");
+
+        /// <summary>
+        /// Overwrite the autodetected language.
+        /// </summary>
+        /// <param name="code">Standard language code</param>
+        void SetLanguage(string code) {
+            Settings.Default.language = code;
+            Restart();
+        }
+
+        /// <summary>
+        /// Relaunch the application when needed.
+        /// </summary>
+        void Restart() {
+            string path = Environment.ProcessPath;
+            Process.Start(path);
+            Application.Current.Shutdown();
+        }
+
+        /// <summary>
         /// Handle when the instructions are enabled or disabled.
         /// </summary>
         void SetInstructions(object _, RoutedEventArgs e) {

@@ -72,6 +72,11 @@
                 <Separator/>
                 <MenuItem Header="{StaticResource OpCon}" Click="ConvertToConvolution"/>
             </MenuItem>
+            <MenuItem Name="languages" Header="{StaticResource MLng}" Style="{StaticResource RootMenuItem}">
+                <MenuItem Name="languageEnglish" Header="English" Click="LanguageEnglish"/>
+                <MenuItem Name="languageHungarian" Header="Magyar" Click="LanguageHungarian"/>
+                <MenuItem Name="languageChinese" Header="中文" Click="LanguageChinese"/>
+            </MenuItem>
             <MenuItem Header="{StaticResource MHelp}" Style="{StaticResource RootMenuItem}">
                 <MenuItem Name="showInstructions" IsCheckable="True" Header="{StaticResource OpShI}" Click="SetInstructions"/>
                 <MenuItem Header="{StaticResource OpAbo}" Click="About"/>

@@ -1,5 +1,9 @@
 ﻿using System.Windows;
 
+using VoidX.WPF.Language;
+
+using FilterStudio.Resources;
+
 namespace FilterStudio {
     /// <summary>
     /// Interaction logic for App.xaml
@@ -8,6 +12,9 @@ namespace FilterStudio {
         /// <summary>
         /// Set the language strings with the app launch.
         /// </summary>
-        public App() => Resources.MergedDictionaries.Add(Consts.Language.GetMainWindowStrings());
+        public App() {
+            LanguageSettings.CultureOverride = Settings.Default.language;
+            Resources.MergedDictionaries.Add(Consts.Language.GetMainWindowStrings());
+        }
     }
 }

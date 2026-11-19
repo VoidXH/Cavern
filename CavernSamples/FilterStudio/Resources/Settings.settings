@@ -14,5 +14,8 @@
     <Setting Name="sampleRate" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">48000</Value>
     </Setting>
+    <Setting Name="language" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
   </Settings>
 </SettingsFile>

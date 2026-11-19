@@ -52,6 +52,9 @@
     <system:String x:Key="ExpFN">Cavern Filter Studio 导出</system:String>
     <system:String x:Key="ErExp">WAV 文件导出失败：{0}</system:String>
 
+    <system:String x:Key="MLng">_语言</system:String>
+    <system:String x:Key="OpRes">更改将在重新启动 Filter Studio 后生效。</system:String>
+
     <system:String x:Key="MHelp">_帮助</system:String>
     <system:String x:Key="OpShI">_显示说明</system:String>
     <system:String x:Key="OpAbo">_关于</system:String>

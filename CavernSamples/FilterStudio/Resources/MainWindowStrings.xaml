@@ -52,6 +52,9 @@
     <system:String x:Key="ExpFN">Cavern Filter Studio export</system:String>
     <system:String x:Key="files">files</system:String>
 
+    <system:String x:Key="MLng">_Language</system:String>
+    <system:String x:Key="OpRes">The changes will take effect after restarting Filter Studio.</system:String>
+
     <system:String x:Key="MHelp">_Help</system:String>
     <system:String x:Key="OpShI">_Show instructions</system:String>
     <system:String x:Key="OpAbo">_About</system:String>

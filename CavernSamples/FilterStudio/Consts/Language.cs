@@ -1,6 +1,7 @@
 ﻿﻿using System.Windows;
 
 using Cavern.WPF.Utils;
+using VoidX.WPF.Language;
 
 using FilterStudio.Windows;
 using FilterStudio.Windows.PipelineSteps;
@@ -13,7 +14,7 @@ namespace FilterStudio.Consts {
         /// <summary>
         /// Get the <see cref="MainWindow"/>'s translation.
         /// </summary>
-        public static ResourceDictionary GetMainWindowStrings() => mainWindowCache ??= ResourceUtils.GetTranslationFor("MainWindowStrings", supported);
+        public static ResourceDictionary GetMainWindowStrings() => mainWindowCache ??= ResourceUtils.GetTranslationFor("MainWindowStrings", supported, LanguageSettings.CultureOverride);
 
         /// <summary>
         /// Get the <see cref="ConvolutionLengthDialog"/>'s translation.

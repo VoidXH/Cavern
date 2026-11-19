@@ -52,6 +52,9 @@
     <system:String x:Key="ExpFN">Cavern Filter Studio export</system:String>
     <system:String x:Key="ErExp">A WAV fájl exportálása sikertelen: {0}</system:String>
 
+    <system:String x:Key="MLng">_Nyelv</system:String>
+    <system:String x:Key="OpRes">A módosítások a Filter Studio újraindítása után lépnek életbe.</system:String>
+
     <system:String x:Key="MHelp">Sú_gó</system:String>
     <system:String x:Key="OpShI">_Segítség mutatása</system:String>
     <system:String x:Key="OpAbo">_Névjegy</system:String>
