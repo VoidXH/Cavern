@@ -165,5 +165,17 @@ namespace Cavern.Format.ConfigurationFile.Presets {
                 root.AddChild(aggregators[freq]);
             }
         }
+
+        /// <summary>
+        /// Get the most quickly processed version of this crossover's lowpass.
+        /// </summary>
+        /// <param name="frequency">Lowpass cutoff point</param>
+        public Filter GetLowpassOptimized(float frequency) => generator.GetLowpassOptimized(sampleRate, frequency, filterLength);
+
+        /// <summary>
+        /// Get the most quickly processed version of this crossover's highpass.
+        /// </summary>
+        /// <param name="frequency">Highpass cutoff point</param>
+        public Filter GetHighpassOptimized(float frequency) => generator.GetHighpassOptimized(sampleRate, frequency, filterLength);
     }
 }
