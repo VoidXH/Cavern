@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 using Cavern.Filters;
 using Cavern.Format.Utilities;
@@ -63,7 +64,7 @@ namespace Cavern.Format.FilterSet {
                 } else {
                     // Handle gain-only format: "freq Hz:\t gain dB"
                     (double freq, double gain) = TryParseGainOnlyLine(line);
-                    if (freq > 0 && gain != double.NaN) {
+                    if (freq > 0 && !double.IsNaN(gain)) {
                         lastFrequency = freq;
                         lastGain = gain;
                         lastQ = defaultQ;
@@ -89,7 +90,7 @@ namespace Cavern.Format.FilterSet {
         /// <param name="line">Line to parse.</param>
         /// <returns>A tuple of (frequency, gain) if the line matches the gain-only format, otherwise (0, NaN).</returns>
         static (double frequency, double gain) TryParseGainOnlyLine(string line) {
-            int hzIndex = line.LastIndexOf(" Hz:");
+            int hzIndex = line.LastIndexOf(" Hz:", StringComparison.InvariantCulture);
             if (hzIndex <= 0) {
                 return (0, double.NaN);
             }
@@ -101,7 +102,7 @@ namespace Cavern.Format.FilterSet {
             if (tabAfterHz < 0) {
                 return (0, double.NaN);
             }
-            int dBIndex = line.LastIndexOf(" dB");
+            int dBIndex = line.LastIndexOf(" dB", StringComparison.InvariantCulture);
             if (dBIndex <= tabAfterHz) {
                 return (0, double.NaN);
             }
