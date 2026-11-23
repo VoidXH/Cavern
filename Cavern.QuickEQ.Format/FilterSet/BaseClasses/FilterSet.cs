@@ -23,7 +23,7 @@ namespace Cavern.Format.FilterSet {
         /// <summary>
         /// Sample rate of the filter set.
         /// </summary>
-        public int SampleRate { get; private set; }
+        public int SampleRate { get; protected set; }
 
         /// <summary>
         /// The number of channels to EQ.

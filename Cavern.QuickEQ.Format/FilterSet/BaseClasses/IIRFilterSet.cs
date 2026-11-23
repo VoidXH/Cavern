@@ -9,7 +9,7 @@ namespace Cavern.Format.FilterSet {
     /// <summary>
     /// Room correction filter data with infinite impulse response (biquad) filter sets for each channel.
     /// </summary>
-    public partial class IIRFilterSet : FilterSet {
+    public partial class IIRFilterSet : FilterSet, IBase64Serializable {
         /// <summary>
         /// Maximum number of peaking EQ filters per channel.
         /// </summary>
