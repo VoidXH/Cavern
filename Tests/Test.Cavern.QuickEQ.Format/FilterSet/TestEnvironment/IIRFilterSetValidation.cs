@@ -32,7 +32,17 @@ internal static class IIRFilterSetValidation {
     /// <summary>
     /// Check that every band survives the export's rounding precision.
     /// </summary>
-    public static void CheckExportRoundTrip(PeakingEQ[] source, IIRFilterSet parsed) {
+    /// <param name="source">Source bands.</param>
+    /// <param name="parsed">Parsed filter set.</param>
+    public static void CheckExportRoundTrip(PeakingEQ[] source, IIRFilterSet parsed) => CheckExportRoundTrip(source, parsed, skipQCheck: false);
+
+    /// <summary>
+    /// Check that every band survives the export's rounding precision.
+    /// </summary>
+    /// <param name="source">Source bands.</param>
+    /// <param name="parsed">Parsed filter set.</param>
+    /// <param name="skipQCheck">Skip Q factor validation (useful for gain-only exports where Q is not preserved).</param>
+    public static void CheckExportRoundTrip(PeakingEQ[] source, IIRFilterSet parsed, bool skipQCheck) {
         BiquadFilter[] parsedBands = ((IIRChannelData)parsed.Channels[0]).filters;
         Assert.AreEqual(source.Length, parsedBands.Length, "The exported and parsed band counts must match.");
 
@@ -41,7 +51,9 @@ internal static class IIRFilterSetValidation {
             double freqTolerance = (source[i].CenterFreq < 100 ? 0.005 : (source[i].CenterFreq < 1000 ? 0.05 : 0.5)) + epsilon;
             Assert.AreEqual(source[i].CenterFreq, parsedBands[i].CenterFreq, freqTolerance, $"Band {i + 1} frequency drifted beyond the export's rounding precision.");
             Assert.AreEqual(source[i].Gain, parsedBands[i].Gain, 0.005 + epsilon, $"Band {i + 1} gain drifted beyond the export's rounding precision.");
-            Assert.AreEqual(source[i].Q, parsedBands[i].Q, 0.005 + epsilon, $"Band {i + 1} Q factor drifted beyond the export's rounding precision.");
+            if (!skipQCheck) {
+                Assert.AreEqual(source[i].Q, parsedBands[i].Q, 0.005 + epsilon, $"Band {i + 1} Q factor drifted beyond the export's rounding precision.");
+            }
         }
     }
 

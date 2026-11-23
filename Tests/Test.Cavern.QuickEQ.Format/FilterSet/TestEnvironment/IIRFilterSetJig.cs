@@ -2,10 +2,8 @@ using Cavern;
 using Cavern.Filters;
 using Cavern.Format.FilterSet;
 using Cavern.QuickEQ.Equalization;
-using Cavern.Utilities;
 
 using Test.Cavern.Consts;
-using Test.Cavern.QuickEQ.Format.FilterSet.Exceptions;
 
 using FSet = Cavern.Format.FilterSet.FilterSet;
 
@@ -50,9 +48,13 @@ public abstract class IIRFilterSetJig(FilterSetTarget target) {
 
         IIRFilterSetValidation.CheckBandConstraints(set, bands);
         string result = set.Export();
-        IIRFilterSet parsed = new(result, Listener.DefaultSampleRate);
-        IIRFilterSetValidation.CheckExportRoundTrip(bands, parsed);
-        IIRFilterSetValidation.CheckResponseAgainstReference(parsed, reference, set.SampleRate, Tolerance);
+        bool isGainOnly = result.Contains(" Hz:\t");
+        double defaultQ = bands.Length > 0 ? bands[0].Q : set.CenterQ;
+        IIRFilterSet parsed = new(result, Listener.DefaultSampleRate, defaultQ);
+        IIRFilterSetValidation.CheckExportRoundTrip(bands, parsed, isGainOnly);
+        if (!isGainOnly) {
+            IIRFilterSetValidation.CheckResponseAgainstReference(parsed, reference, set.SampleRate, Tolerance);
+        }
     });
 
     /// <summary>
