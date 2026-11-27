@@ -15,7 +15,7 @@ static class EQCurveTestUtils {
     public static void RoomCurveLikeIndexer(RoomCurveLikeCurve curve, int riseFreq, int riseGain, float trebleSuppression) {
         Assert.AreEqual(riseGain, curve[10], 2 * Constants.delta); // 10 Hz: clamped to 3 dB
         Assert.AreEqual(riseGain, curve[20], 2 * Constants.delta); // 20 Hz: 3 dB
-        double midFreq = Math.Sqrt(2 * riseFreq); // Midpoint on log scale: log10(sqrt(20*200)) ≈ log10(63.2) ≈ 1.8, should be ~half rise
+        double midFreq = Math.Sqrt(20 * riseFreq); // Midpoint on log scale: log10(sqrt(20*200)) ≈ log10(63.2) ≈ 1.8, should be ~half rise
         Assert.AreEqual(riseGain / 2.0, curve[midFreq], 2 * Constants.delta); // Midpoint: half rise
         Assert.AreEqual(0, curve[riseFreq], Constants.delta); // 200 Hz: 0 dB
         Assert.AreEqual(0, curve[1000], Constants.delta); // 1 kHz: 0 dB
@@ -26,7 +26,7 @@ static class EQCurveTestUtils {
     /// Tests if <see cref="RoomCurveLikeCurve.GenerateLinearCurve(int, int, float)"/> works as intended.
     /// </summary>
     public static void RoomCurveLikeLinearCurve(RoomCurveLikeCurve curve, int riseFreq, int riseGain, float trebleSuppression) {
-        const int divisor = 20; // Resolution will be this many times lower than 1 Hz
+        const int divisor = 10; // Resolution will be this many times lower than 1 Hz
         float[] linear = curve.GenerateLinearCurve(48000, 24000 / divisor);
         Assert.AreEqual(riseGain, linear[10 / divisor], Constants.delta); // 10 Hz: clamped to 3 dB
         Assert.AreEqual(riseGain, linear[20 / divisor], Constants.delta); // 20 Hz: 3 dB
@@ -55,13 +55,27 @@ static class EQCurveTestUtils {
         int idxMid = (int)((Math.Log10(Math.Sqrt(20.0 * riseFreq)) - powerMin) * powerRange);
         int idxRise = (int)((Math.Log10(riseFreq) - powerMin) * powerRange);
         int idx1000 = (int)((Math.Log10(1000) - powerMin) * powerRange);
-        int idx20000 = (int)((Math.Log10(20000) - powerMin) * powerRange);
+        int idx20000 = Math.Min(length - 1, (int)((Math.Log10(20000) - powerMin) * powerRange));
 
         Assert.AreEqual(riseGain, logCurve[idx10], Constants.delta); // 10 Hz: clamped to 3 dB
         Assert.AreEqual(riseGain, logCurve[idx20], Constants.delta); // 20 Hz: 3 dB
-        Assert.AreEqual(riseGain / 2.0, logCurve[idxMid], 2 * Constants.delta); // Midpoint: half rise
+        Assert.AreEqual(riseGain / 2.0, logCurve[idxMid], 2 * riseGain / powerRange); // Midpoint: half rise (±1 sample step from index truncation)
         Assert.AreEqual(0, logCurve[idxRise], Constants.delta); // 200 Hz: 0 dB
         Assert.AreEqual(0, logCurve[idx1000], Constants.delta); // 1 kHz: 0 dB
-        Assert.AreEqual(-trebleSuppression, logCurve[idx20000], Constants.delta); // 20 kHz: treble suppressed
+        int kneeIdx = (int)((3 - powerMin) * powerRange); // 1 kHz: treble suppression start
+        Assert.AreEqual(-trebleSuppression, logCurve[idx20000], 2 * trebleSuppression / (idx20000 - kneeIdx)); // 20 kHz: treble suppressed (±1 sample step)
+    }
+
+    /// <summary>
+    /// Tests if <paramref name="curve"/>, using <see cref="RoomCurveBassType.Shelving"/>, keeps the unaffected parts of the curve close to 0 dB.
+    /// </summary>
+    /// <param name="curve">The curve to test</param>
+    public static void RoomCurveLikeShelvingCurve(RoomCurveLikeCurve curve) {
+        float[] linear = curve.GenerateLinearCurve(48000, 24000);
+        Assert.AreEqual(0, linear[1000], .5f); // 1 kHz
+        Assert.AreEqual(0, linear[2000], .5f); // 2 kHz
+        float[] log = curve.GenerateLogCurve(10, 20000, 100);
+        int idx1000 = (int)((Math.Log10(1000) - Math.Log10(10)) * (100 / (Math.Log10(20000) - Math.Log10(10))));
+        Assert.AreEqual(0, log[idx1000], .5f); // 1 kHz
     }
 }

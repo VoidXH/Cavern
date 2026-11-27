@@ -25,6 +25,12 @@ namespace Test.Cavern.QuickEQ.EQCurves {
         public void GenerateLogCurve() => EQCurveTestUtils.RoomCurveLikeLogCurve(new RoomCurve(), 200, 3, 3);
 
         /// <summary>
+        /// Tests if <see cref="RoomCurveLikeCurve"/> with <see cref="RoomCurveBassType.Shelving"/> keeps the unaffected parts of the curve close to 0 dB.
+        /// </summary>
+        [TestMethod, Timeout(1000)]
+        public void ShelvingUnaffectedParts() => EQCurveTestUtils.RoomCurveLikeShelvingCurve(new RoomCurveLikeCurve(200, 3, 20) { BassType = RoomCurveBassType.Shelving });
+
+        /// <summary>
         /// Tests if Base64 round-trip preserves <see cref="RoomCurveLikeCurve.GenerateLinearCurve(int, int, float)"/>.
         /// </summary>
         [TestMethod, Timeout(1000)]

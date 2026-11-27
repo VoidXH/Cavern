@@ -1,5 +1,8 @@
 using System;
 
+using Cavern.Filters;
+using Cavern.Filters.Utilities;
+using Cavern.QuickEQ.Utilities;
 using Cavern.Utilities;
 
 namespace Cavern.QuickEQ.EQCurves {
@@ -7,6 +10,11 @@ namespace Cavern.QuickEQ.EQCurves {
     /// A curve with a linear bass rise and linear treble suppression.
     /// </summary>
     public class RoomCurveLikeCurve : TrebleSuppressingCurve {
+        /// <summary>
+        /// The type of bass curve used for the room curve.
+        /// </summary>
+        public RoomCurveBassType BassType { get; set; }
+
         /// <summary>
         /// The frequency where the bass rise stops (default 20 Hz).
         /// </summary>
@@ -72,19 +80,34 @@ namespace Cavern.QuickEQ.EQCurves {
         /// <inheritdoc/>
         public sealed override float[] GenerateLinearCurve(int sampleRate, int length, float gain) {
             float[] curve = base.GenerateLinearCurve(sampleRate, length, gain);
-            int knee = QMath.RoundToInt(2 * kneeFrequency * curve.Length / sampleRate);
-            if (knee > curve.Length) {
-                knee = curve.Length;
-            }
+            switch (BassType) {
+                case RoomCurveBassType.Cavern: {
+                    int knee = QMath.RoundToInt(2 * kneeFrequency * curve.Length / sampleRate);
+                    if (knee > curve.Length) {
+                        knee = curve.Length;
+                    }
 
-            float positioner = sampleRate * .5f / curve.Length,
-                scale = -rise / ((float)kneeFrequency - (float)BassPeakAt);
-            for (int i = 0; i < knee; i++) {
-                float freq = i * positioner;
-                if (freq < BassPeakAt) {
-                    freq = (float)BassPeakAt;
+                    float positioner = sampleRate * .5f / curve.Length,
+                        scale = -rise / ((float)kneeFrequency - (float)BassPeakAt);
+                    for (int i = 0; i < knee; i++) {
+                        float freq = i * positioner;
+                        if (freq < BassPeakAt) {
+                            freq = (float)BassPeakAt;
+                        }
+                        curve[i] += scale * (freq - (float)kneeFrequency);
+                    }
+                    break;
                 }
-                curve[i] = scale * (freq - (float)kneeFrequency) + gain;
+                case RoomCurveBassType.Shelving: {
+                    float[] shelf = new LowShelf(sampleRate, kneeFrequency, QFactor.reference, rise).GetFrequencyResponse(length);
+                    GraphUtils.ConvertToDecibels(shelf);
+                    for (int i = 0; i < length; i++) {
+                        curve[i] += shelf[i];
+                    }
+                    break;
+                }
+                default:
+                    throw new NotImplementedException();
             }
             return curve;
         }
@@ -92,22 +115,39 @@ namespace Cavern.QuickEQ.EQCurves {
         /// <inheritdoc/>
         public sealed override float[] GenerateLogCurve(double startFreq, double endFreq, int length, float gain) {
             float[] curve = base.GenerateLogCurve(startFreq, endFreq, length, gain);
-            double powerMin = Math.Log10(startFreq), powerRange = curve.Length / (Math.Log10(endFreq) - powerMin);
-            int knee = (int)((Math.Log10(kneeFrequency) - powerMin) * powerRange);
-            if (knee < 0) {
-                return curve;
-            } else if (knee > curve.Length) {
-                knee = length;
-            }
+            switch (BassType) {
+                case RoomCurveBassType.Cavern: {
+                    double powerMin = Math.Log10(startFreq), powerRange = curve.Length / (Math.Log10(endFreq) - powerMin);
+                    int knee = (int)((Math.Log10(kneeFrequency) - powerMin) * powerRange);
+                    if (knee < 0) {
+                        break;
+                    } else if (knee > curve.Length) {
+                        knee = length;
+                    }
 
-            float positioner = (float)(1.0 / (knee - (logBassPeakAt - powerMin) * powerRange));
-            for (int i = 0; i < knee; i++) {
-                double logFreq = powerMin + i / powerRange;
-                if (logFreq < logBassPeakAt) {
-                    logFreq = logBassPeakAt;
+                    float positioner = (float)(1.0 / (knee - (logBassPeakAt - powerMin) * powerRange));
+                    for (int i = 0; i < knee; i++) {
+                        double logFreq = powerMin + i / powerRange;
+                        if (logFreq < logBassPeakAt) {
+                            logFreq = logBassPeakAt;
+                        }
+                        double clampedIndex = (logFreq - powerMin) * powerRange;
+                        curve[i] += (float)(rise * (knee - clampedIndex) * positioner);
+                    }
+                    break;
                 }
-                double clampedIndex = (logFreq - powerMin) * powerRange;
-                curve[i] = (float)(rise * (knee - clampedIndex) * positioner + gain);
+                case RoomCurveBassType.Shelving: {
+                    const int oversampling = 20;
+                    Complex[] response = new LowShelf(Listener.DefaultSampleRate, kneeFrequency, QFactor.reference, rise).GetTransferFunction(oversampling * length);
+                    float[] shelf = GraphUtils.ConvertToGraph(response, startFreq, endFreq, Listener.DefaultSampleRate, length);
+                    GraphUtils.ConvertToDecibels(shelf);
+                    for (int i = 0; i < length; i++) {
+                        curve[i] += shelf[i];
+                    }
+                    break;
+                }
+                default:
+                    throw new NotImplementedException();
             }
             return curve;
         }
@@ -116,19 +156,20 @@ namespace Cavern.QuickEQ.EQCurves {
         public override void FromBase64(string source) {
             string data = FromBase64String(source);
             string[] parts = data.Split('|');
-            if (parts.Length != 5 || parts[0] != nameof(RoomCurveLikeCurve)) {
+            if (parts.Length != 6 || parts[0] != nameof(RoomCurveLikeCurve)) {
                 throw new FormatException("Invalid RoomCurveLikeCurve data.");
             }
             rise = float.Parse(parts[1]);
             kneeFrequency = double.Parse(parts[2]);
             logBassPeakAt = Math.Log10(double.Parse(parts[3]));
             trebleSuppression = float.Parse(parts[4]);
+            BassType = (RoomCurveBassType)Enum.Parse(typeof(RoomCurveBassType), parts[5]);
             kneePosition = Math.Log10(kneeFrequency);
             singleFreqHelper = rise / (Math.Log10(kneeFrequency) - logBassPeakAt);
         }
 
         /// <inheritdoc/>
-        public override string ToBase64() => ToBase64String($"{nameof(RoomCurveLikeCurve)}|{rise}|{kneeFrequency}|{BassPeakAt}|{trebleSuppression}");
+        public override string ToBase64() => ToBase64String($"{nameof(RoomCurveLikeCurve)}|{rise}|{kneeFrequency}|{BassPeakAt}|{trebleSuppression}|{BassType}");
 
         /// <summary>
         /// Default room curve knee frequency.
